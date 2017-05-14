@@ -1,10 +1,9 @@
 #include <Client.hpp>
-#include <boost/bind.hpp>
 
 namespace msp {
 namespace async {
 
-using namespace boost::asio;
+using namespace asio;
 
 Client::Client(const std::string &device, const uint baudrate) : port(io) {
     port.open(device);
@@ -19,12 +18,12 @@ Client::Client(const std::string &device, const uint baudrate) : port(io) {
 
 void Client::cycle() {
     while(true) {
-        async_read_until(port, buffer, "$M", boost::bind(&Client::onHeaderStart, this, _1, _2));
+        async_read_until(port, buffer, "$M", std::bind(&Client::onHeaderStart, this, std::placeholders::_1, std::placeholders::_2));
         io.run();
     }
 }
 
-void Client::onHeaderStart(const boost::system::error_code& e, std::size_t size) {
+void Client::onHeaderStart(const asio::error_code& e, std::size_t size) {
     // ignore data
 }
 

@@ -2,7 +2,7 @@
 #define CLIENT_HPP
 
 #include <string>
-#include <boost/asio.hpp>
+#include <asio.hpp>
 #include <thread>
 
 namespace msp {
@@ -14,14 +14,14 @@ public:
 
     void cycle();
 
-    void onHeaderStart(const boost::system::error_code& e, std::size_t size);
+    void onHeaderStart(const asio::error_code& e, std::size_t size);
 
 private:
-    boost::asio::serial_port port;
-    boost::asio::io_service io;
+    asio::serial_port port;
+    asio::io_service io;
     //std::thread thread;
 
-    boost::asio::streambuf buffer;
+    asio::streambuf buffer;
 };
 
 } // namespace async
