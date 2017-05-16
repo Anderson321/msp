@@ -3,6 +3,13 @@ project(msp)
 
 add_definitions(-std=c++11)
 add_definitions(-Wall)
+add_definitions(-DASIO_STANDALONE)
+#define ASIO_STANDALONE
+#define ASIO_HAS_STD_ADDRESSOF
+#define ASIO_HAS_STD_ARRAY
+#define ASIO_HAS_CSTDINT
+#define ASIO_HAS_STD_SHARED_PTR
+#define ASIO_HAS_STD_TYPE_TRAITS
 
 if(UNIX)
     set(BUILD_SHARED_LIBS "ON")
@@ -66,6 +73,7 @@ add_library(msp_fcu ${MSP_SOURCE_DIR}/FlightController.cpp
 target_link_libraries(msp_fcu msp)
 
 add_library(mspclient_async ${MSP_SOURCE_DIR}/Client.cpp)
+target_link_libraries(mspclient_async ${CMAKE_THREAD_LIBS_INIT})
 
 # testing publish/subscribe
 add_executable(fcu_test examples/fcu_test.cpp)
@@ -86,6 +94,9 @@ target_link_libraries(fcu_custom_type msp_fcu)
 # cleanflight requests
 add_executable(cleanflight_read_test examples/cleanflight_read_test.cpp)
 target_link_libraries(cleanflight_read_test msp msp_msg_print)
+
+add_executable(msp_async_test examples/async_test.cpp)
+target_link_libraries(msp_async_test mspclient_async msp_msg_print)
 
 # installation
 if(catkin_FOUND)
