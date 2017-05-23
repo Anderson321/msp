@@ -90,6 +90,10 @@ target_link_libraries(fcu_custom_type msp_fcu)
 add_executable(cleanflight_read_test examples/cleanflight_read_test.cpp)
 target_link_libraries(cleanflight_read_test msp msp_msg_print)
 
+#myCode
+add_executable(myCode examples/myCode.cpp)
+target_link_libraries(myCode msp_fcu)
+
 # installation
 if(catkin_FOUND)
     install(TARGETS msp msp_fcu msp_msg_print
