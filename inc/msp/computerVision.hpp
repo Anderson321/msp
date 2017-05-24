@@ -8,7 +8,7 @@ typedef unsigned int uint;
 class computerVision {
 public: 
 
-	bool hasShoes;
+	int hasShoes;
 	double horizontalDistance;
 	double distance;
 	
