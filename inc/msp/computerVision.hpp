@@ -8,29 +8,30 @@ typedef unsigned int uint;
 class computerVision {
 public: 
 
-	int horizontalPixels;
-	int verticalPixels;
-	double proxDistance;
-	
-	
+
 	// initializes cv
 	computerVision(pipe *file);
 	//updates cv
 	void update(pipe *file);
 
-	bool hasShoes();
+	bool hasShoes(void);
 
-	bool isCentered();
+	bool isCentered(void);
 
-	double horizontalDistance();
+	double horizontalDistance(void);
 
-	
+private:
+	int horizontalPixels;
+	int verticalPixels;
+	double proxDistance;
 
 
 
 
 
-}
+} ;
+
+
 
 
 

@@ -20,8 +20,8 @@ namespace cv {
 	}
 
 	// updates the fields by accepting a new pipe
-	computerVision::update(pipe *file) {
-	std::ifstream ifs (pipe, std::ifstream::in);
+	void computerVision::update(pipe *file) {
+		std::ifstream ifs (pipe, std::ifstream::in);
 		char c = ifs.get();
 		if (ifs.good()) {
 			this->horizontalPixels << c;
@@ -35,7 +35,7 @@ namespace cv {
 
 
     // returns if the line is within vertical and horizontal bounds
-	computerVision::bool hasShoes() {
+	bool computerVision::hasShoes() {
 		return(verticalPixels <= 240 && verticalPixels >= -240 &&
 				horitzontalPixels <= 320 && horizontalPixels >= -320);
 
@@ -47,7 +47,7 @@ namespace cv {
 
 
 	// returns if the 
-	computerVision::bool isCentered() {
+	bool computerVision::isCentered() {
 
 
 
@@ -64,7 +64,7 @@ namespace cv {
 
 
 
-	computerVision::double horizontalDistance() {
+	double computerVision::horizontalDistance() {
 
 
 
