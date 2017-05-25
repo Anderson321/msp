@@ -1,6 +1,5 @@
-#ifndef COMPUTERVISION_HPP
-#define COMPUTERVISION_HPP
-
+#ifndef COMPUTERVISION_HPP_
+#define COMPUTERVISION_HPP_
 
 namespace cv {
 
@@ -10,38 +9,25 @@ class computerVision {
 public: 
 
 	// initializes cv
-	computerVision(pipe *file);
+	computerVision(char *pipe);
 	//updates cv
-	void update(pipe *file);
+	void update(char *pipe);
 	// returns true if 
 	bool hasShoes();
 
 	bool isCentered();
-
 	bool isLeft();
-
 	bool isRight();
-
 	bool isTooHigh();
-
 	bool isTooLow();
-
 	double horizontalDistance();
-
-
-
 
 private:
 	int horizontalPixels;
 	int verticalPixels;
 	double proxDistance;
 	double pixelFactor;
-
-
-} ;
-
-
-
+};
 }
 
-#endif
+#endif /* COMPUTERVISION_HPP_ */
