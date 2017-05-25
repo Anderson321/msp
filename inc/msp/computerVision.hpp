@@ -1,8 +1,6 @@
 #ifndef COMPUTERVISION_HPP
 #define COMPUTERVISION_HPP
 
-const int centerHorizontal = 25;
-const int centerVertical = 120;
 
 namespace cv {
 

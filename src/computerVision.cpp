@@ -36,8 +36,8 @@ namespace cv {
 
     // returns if the line is within vertical and horizontal bounds
 	bool computerVision::hasShoes() {
-		return((verticalPixels <= 240 && verticalPixels >= -240) ||
-				(horizontalPixels <= 320 && horizontalPixels >= -320);
+		return((verticalPixels <= 480 && verticalPixels >= 0) &&
+				(horizontalPixels <= 640 && horizontalPixels >= 0);
 
 	}
 
@@ -45,27 +45,27 @@ namespace cv {
 
 	// returns if the shoelace is centered. Revisit these values
 	bool computerVision::isCentered() {
-		return (horizontalPixels <= centerHorizontal && horizontalPixels >= -centerHorizontal && 
-				verticalPixels <= 240 && verticalPixels >= centerVertical);
+		return (horizontalPixels <= 352 && horizontalPixels >= 288 && 
+				verticalPixels <= 128 && verticalPixels >= 96);
 
 
 	}
 
 	bool computerVision::isLeft() {
-		return(horizontalPixels < -centerHorizontal);
+		return(horizontalPixels < 288);
 	}
 
 	bool computerVision::isRight() {
-		return(horizontalPixels > centerHorizontal);
+		return(horizontalPixels > 352;
 	}
 
 	bool computerVision::isTooLow() {
-		return(verticalPixels <= centerVertical);
+		return(verticalPixels < 96;
 
 	}
 
 	bool computerVision::isTooHigh() {
-		return(verticalPixels > 240);
+		return(verticalPixels > 128);
 
 	}
 
