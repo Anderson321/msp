@@ -1,5 +1,5 @@
 #include <FlightController.hpp>
-
+#include <computerVision.hpp>
 #include <iostream>
 #include <chrono>
 
@@ -45,3 +45,122 @@ start:
     if(fcu.isArmed()) {
         std::cout<<"armed after: "<<std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count()<<" ms"<<std::endl;
     }
+
+
+    //begin defouling
+
+    cv::computerVision cv(pipe);
+    while(!cv.hasShoes()) {
+        fcu.setRc(1600,1500,1500,1500,1000,1000,1000,1000);
+        cv.update(pipe);
+    }
+    fcu.setRc(1500,1500,1500,1500,1000,1000,1000,1000);
+
+    while(cv.hasShoes()) {
+
+        while(cv.isCentered()) {
+            // go forward 
+
+
+
+        }
+
+        while(cv.isTooHigh()) {
+
+            // go down a bit
+            cv.update(pipe);
+
+        }
+
+        while(cv.isTooLow()) {
+
+            // go up a bit
+            cv.update(pipe);
+
+        }
+
+    
+        while(cv.isRight()) {
+            // roll left
+            cv.update(pipe);
+
+
+        }
+
+        while(cv.isLeft()) {
+            // roll left
+            cv.update(pipe);
+
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+    }
+
+    fcu.disarm_block();
+
+}
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
