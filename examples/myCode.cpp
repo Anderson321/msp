@@ -50,62 +50,56 @@ start:
     //begin defouling
 
     cv::computerVision cv(pipe);
-    while(!cv.hasShoes()) {
-        fcu.setRc(1600,1500,1500,1500,1000,1000,1000,1000);
-        cv.update(pipe);
-    }
-    fcu.setRc(1500,1500,1500,1500,1000,1000,1000,1000);
-
-    while(cv.hasShoes()) {
-
-        while(cv.isCentered()) {
-            // go forward 
-
-
-
-        }
-
-        while(cv.isTooHigh()) {
-
-            // go down a bit
+    while(true)
+        while(!cv.hasShoes()) {
+            fcu.setRc(1600,1500,1500,1500,1000,1000,1000,1000);
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
             cv.update(pipe);
-
         }
+        fcu.setRc(1500,1500,1500,1400,1000,1000,1000,1000);
 
-        while(cv.isTooLow()) {
+        while(cv.hasShoes()) {
 
-            // go up a bit
-            cv.update(pipe);
+            while(cv.isCentered()) {
+                // go forward 
 
-        }
+
+            }
+
+            while(cv.isTooHigh()) {
+                double difference = cv.getDistanceDifference(0);
+                // go down a bit
+                cv.update(pipe);
+
+            }
+
+            while(cv.isTooLow()) {
+                double difference = cv.getDistanceDifference(1);
+                // go up a bit
+                cv.update(pipe);
+
+            }
 
     
-        while(cv.isRight()) {
-            // roll left
-            cv.update(pipe);
+            while(cv.isRight()) {
+                double difference = cv.getDistanceDifference(2);
+                // roll left
+                cv.update(pipe);
+
+
+            }
+
+            while(cv.isLeft()) {
+                double difference = cv.getDistanceDifference(3);
+                // roll left
+                cv.update(pipe);
+
+
+            }
+
 
 
         }
-
-        while(cv.isLeft()) {
-            // roll left
-            cv.update(pipe);
-
-
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-    }
 
     fcu.disarm_block();
 

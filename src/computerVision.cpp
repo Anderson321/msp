@@ -8,13 +8,13 @@ namespace cv {
 		std::ifstream ifs;
 		ifs.open(pipe, std::ifstream::in);
 		char c = ifs.get();
-		if (ifs.good()) {
-			this->horizontalPixels << c;
-			c = ifs.get();
-			this->verticalPixels << c;
-			c = ifs.get();
-			this->proxDistance << c;
-		}
+		//if (ifs.good()) {
+		this->horizontalPixels << c;
+		c = ifs.get();
+		this->verticalPixels << c;
+		c = ifs.get();
+		this->proxDistance << c;
+		//}
 	}
 
 	// updates the fields by accepting a new pipe
@@ -22,13 +22,13 @@ namespace cv {
 		std::ifstream ifs;
 		ifs.open(pipe, std::ifstream::in);
 		char c = ifs.get();
-		if (ifs.good()) {  /* this does not work */
-			this->horizontalPixels << c;
-			c = ifs.get();
-			this->verticalPixels << c;
-			c = ifs.get();
-			this->proxDistance << c;
-		} 
+		//if (ifs.good()) {  /* this does not work */
+		this->horizontalPixels << c;
+		c = ifs.get();
+		this->verticalPixels << c;
+		c = ifs.get();
+		this->proxDistance << c;
+		//} 
 	}
 
 	// returns if the line is within vertical and horizontal bounds
@@ -52,15 +52,19 @@ namespace cv {
 	}
 
 	bool computerVision::isTooLow() {
-		return(verticalPixels < 96;
+		return(verticalPixels > 128;
 	}
 
 	bool computerVision::isTooHigh() {
-		return(verticalPixels > 128);
+		return(verticalPixels  < 96);
 	}
 
 	// get pixelFactor experimentally
-	double computerVision::horizontalDistance() {
+	double computerVision::getHorizontalDistance() {
 		return (horizontalPixels * proxDistance * pixelFactor);
+	}
+
+	double computerVision::getVerticalDistance() {
+		return(verticalPixels * proxDistance * pixelFactor);
 	}
 }
