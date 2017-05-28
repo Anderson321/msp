@@ -24,20 +24,20 @@ enum {
 class pid {
 public:
     pid();
-    pid(double Kp, double Ki, double Kd);
+    pid(float Kp, float Ki, float Kd);
 
-    double compute_output(double input, double desired);
+    float compute_output(float input, float desired);
     void set_sampling(unsigned int freq);
-    void set_outbounds(double min, double max);
+    void set_outbounds(float min, float max);
     void set_mode(unsigned int mode);
 
-    double get_kp();
-    double get_ki();
-    double get_kd();
+    float get_kp();
+    float get_ki();
+    float get_kd();
 
-    void set_kp(double Kp);
-    void set_ki(double Ki);
-    void set_kd(double Kd);
+    void set_kp(float Kp);
+    void set_ki(float Ki);
+    void set_kd(float Kd);
 
 private:
     /* timing */
@@ -45,13 +45,13 @@ private:
     unsigned long sample_time;
 
     /* state variables */
-    double prev_input, prev_desired;
-    double prev_error;
-    double max_out, min_out;
+    float prev_input, prev_desired;
+    float prev_error;
+    float max_out, min_out;
 
     /* tuning constants */
-    double kp, ki, kd;
-    double i_term;
+    float kp, ki, kd;
+    float i_term;
 
     bool auto_control;
 };

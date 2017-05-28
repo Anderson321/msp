@@ -19,7 +19,7 @@
  *          for each axis being controlled.
  */
 
-#include <pid.hpp>
+#include "pid.hpp"
 
 /*
  * Contruct new PID controller initialized at zero for
@@ -33,7 +33,7 @@ pid::pid() {
  * Construct new PID controller with Kp, Ki, and Kd for the
  * initial controller constants.
  */
-pid::pid(double Kp, double Ki, double Kd) {
+pid::pid(float Kp, float Ki, float Kd) {
     sample_time = 1 / DEFAULT_SAMP_SEC;
     prev_time = 0;
 
@@ -52,27 +52,27 @@ pid::pid(double Kp, double Ki, double Kd) {
  * Given an input value and the desired set point,
  * computes the PID output of the controller and returns it.
  */
-double pid::compute_output(double input, double desired) {
+float pid::compute_output(float input, float desired) {
     if (!auto_control) {
         return 0;
     }
 
     /* calculate the new time difference */
-    double t_diff;
+    float t_diff;
     clock_t now = clock();
     if (prev_time == 0)
         t_diff = sample_time;
     else
-        t_diff = (double)(now - prev_time) / CLOCKS_PER_SEC;
+        t_diff = (float)(now - prev_time) / CLOCKS_PER_SEC;
 
     /* enough time has passed to sample again */
     if (t_diff >= sample_time) {
-        double d_desired = desired - prev_desired;
-        double d_input = input - prev_input;
+        float d_desired = desired - prev_desired;
+        float d_input = input - prev_input;
 
         /* new error values */
-        double error = desired - input;
-        double d_error = (d_desired - d_input) / t_diff;
+        float error = desired - input;
+        float d_error = (d_desired - d_input) / t_diff;
 
         /* computing integral term within specified bounds */
         i_term += (ki * error * t_diff);
@@ -81,7 +81,7 @@ double pid::compute_output(double input, double desired) {
         prev_time = now;
         prev_error = error;
 
-        double ret = (kp * error) + (i_term) + (kd * d_error);
+        float ret = (kp * error) + (i_term) + (kd * d_error);
         /* clamp controller output bounds */
         if (ret > max_out)
             return max_out;
@@ -107,7 +107,7 @@ void pid::set_sampling(unsigned int freq) {
  * bounds of the contoller and integral term to disperse
  * with controller reset windup.
  */
-void pid::set_outbounds(double min, double max) {
+void pid::set_outbounds(float min, float max) {
     if (min < max) {
         min_out = min;
         max_out = max;
@@ -143,41 +143,41 @@ void pid::set_mode(unsigned int mode) {
 /*
  * Sets proportional constant to given value.
  */
-void pid::set_kp(double Kp) {
+void pid::set_kp(float Kp) {
     kp = Kp;
 }
 
 /*
  * Sets integral constant to given value.
  */
-void pid::set_ki(double Ki) {
+void pid::set_ki(float Ki) {
     ki = Ki;
 }
 
 /*
  * Sets derivative constant to given value.
  */
-void pid::set_kd(double Kd) {
+void pid::set_kd(float Kd) {
     kd = Kd;
 }
 
 /*
  * Returns current proportional constant.
  */
-double pid::get_kp() {
+float pid::get_kp() {
     return kp;
 }
 
 /*
  * Returns current integral constant.
  */
-double pid::get_ki() {
+float pid::get_ki() {
     return ki;
 }
 
 /*
  * Returns current derivative constant.
  */
-double pid::get_kd() {
+float pid::get_kd() {
     return kd;
 }
