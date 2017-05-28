@@ -70,6 +70,10 @@ add_library(msp_fcu ${MSP_SOURCE_DIR}/FlightController.cpp
                            ${MSP_INCLUDE_DIR}/PeriodicTimer.hpp)
 target_link_libraries(msp_fcu msp)
 
+# pid library
+add_library(pid ${MSP_SOURCE_DIR}/pid.cpp
+			   ${MSP_INCLUDE_DIR}/pid.hpp)
+
 # testing publish/subscribe
 add_executable(fcu_test examples/fcu_test.cpp)
 target_link_libraries(fcu_test msp_fcu msp_msg_print)
