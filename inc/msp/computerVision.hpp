@@ -38,6 +38,7 @@ private:
 	int verticalPixels;
 	double proxDistance;
 	double pixelFactor;
+	const char *pipe;
 
 };
 

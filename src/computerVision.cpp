@@ -15,6 +15,7 @@ namespace cv {
    * pipe string.
    */
 	computerVision::computerVision(const char *pipe) {
+		this->pipe = pipe;
 		std::ifstream ifs;
 		ifs.open(pipe, std::ifstream::in);
 		char c = ifs.get();
@@ -31,6 +32,7 @@ namespace cv {
    * Updates the fields by accepting a new pipe name.
    */
 	void computerVision::update(const char *pipe) {
+
 		std::ifstream ifs;
 		ifs.open(pipe, std::ifstream::in);
 		char c = ifs.get();
