@@ -12,6 +12,10 @@ const int horizontalCenterRight = 352;
 const int verticalCenterTop = 96;
 const int verticalCenterBottom = 128;
 
+/*
+ * Holds the frame and control flow logic for detecting
+ * the shoelaces.
+ */
 class computerVision {
 public: 
 
@@ -35,6 +39,20 @@ private:
 	double proxDistance;
 	double pixelFactor;
 
+};
+
+/*
+ * Holds value of previous frame point where the shoes
+ * were last detected.
+ */
+class prevPoint {
+  public:
+    int getX();
+    int getY();
+
+  private:
+    int prevHorizontal;
+    int prevVertical;
 };
 }
 

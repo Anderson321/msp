@@ -4,6 +4,16 @@
 
 namespace cv {
 
+  /**
+   * ======================================================
+   * OBJECT: computerVision 
+   * ======================================================
+   **/
+
+  /*
+   * Constructs computerVision object for the given named
+   * pipe string.
+   */
 	computerVision::computerVision(const char *pipe) {
 		std::ifstream ifs;
 		ifs.open(pipe, std::ifstream::in);
@@ -17,7 +27,9 @@ namespace cv {
 		//}
 	}
 
-	// updates the fields by accepting a new pipe
+	/*
+   * Updates the fields by accepting a new pipe name.
+   */
 	void computerVision::update(const char *pipe) {
 		std::ifstream ifs;
 		ifs.open(pipe, std::ifstream::in);
@@ -77,4 +89,42 @@ namespace cv {
 
 	}
 
+
+  /**
+   * ======================================================
+   * OBJECT: prevPoint 
+   * ======================================================
+   **/
+
+  /*
+   * General constructor for a previously seen point.
+   */
+  prevPoint::prevPoint() {
+    prevPoint(0, 0);
+  }
+
+  /*
+   * Constructs Point for previous point shoes were seen at
+   * in the camera frame.
+   */
+  prevPoint::prevPoint(int x, int y) {
+    this->prevHorizontal = x;
+    this->prevVertical   = y;
+  }
+
+  /*
+   * Returns previous horizontal point where shoes were
+   * last seen.
+   */
+  int prevPoint::getX() {
+    return prevHorizontal;
+  }
+
+  /*
+   * Returns previous vertical point where shoes were
+   * last seen.
+   */
+  int prevPoint::getY() {
+    return prevVertical;
+  }
 }
