@@ -49,13 +49,15 @@ start:
 
     //begin defouling
 
-    cv::computerVision cv(pipe);
+    cv::computerVision cv(pipe);  /* where is pipe initialized? */
     while(true)
         while(!cv.hasShoes()) {
-            fcu.setRc(1600,1500,1500,1500,1000,1000,1000,1000);
+            /* increase throttle and go up */
+            fcu.setRc(1500,1500,1500,1500,1000,1000,1000,1000);
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             cv.update(pipe);
         }
+        /* back off throttle */
         fcu.setRc(1500,1500,1500,1400,1000,1000,1000,1000);
 
         while(cv.hasShoes()) {

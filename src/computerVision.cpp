@@ -44,19 +44,19 @@ namespace cv {
 	}
 
 	bool computerVision::isLeft() {
-		return(horizontalPixels < horizontalCenterLeft);
+		return (horizontalPixels < horizontalCenterLeft);
 	}
 
 	bool computerVision::isRight() {
-		return(horizontalPixels > horizontalCenterRight;
+		return (horizontalPixels > horizontalCenterRight);
 	}
 
 	bool computerVision::isTooLow() {
-		return(verticalPixels > verticalCenterBottom;
+		return (verticalPixels > verticalCenterBottom);
 	}
 
 	bool computerVision::isTooHigh() {
-		return(verticalPixels  < verticalCenterTop);
+		return (verticalPixels < verticalCenterTop);
 	}
 
 	// get pixelFactor experimentally
