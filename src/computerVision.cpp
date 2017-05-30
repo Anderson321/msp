@@ -33,38 +33,48 @@ namespace cv {
 
 	// returns if the line is within vertical and horizontal bounds
 	bool computerVision::hasShoes() {
-		return((verticalPixels <= 480 && verticalPixels >= 0) &&
-				(horizontalPixels <= 640 && horizontalPixels >= 0);
+		return((verticalPixels <= verticalRange && verticalPixels >= 0) &&
+				(horizontalPixels <= horizontalRange && horizontalPixels >= 0);
 	}
 
 	// returns if the shoelace is centered. Revisit these values
 	bool computerVision::isCentered() {
-		return (horizontalPixels <= 352 && horizontalPixels >= 288 && 
-				verticalPixels <= 128 && verticalPixels >= 96);
+		return (horizontalPixels <= horizontalCenterRight && horizontalPixels >= horizontalCenterLeft && 
+				verticalPixels <= verticalCenterBottom && verticalPixels >= verticalCenterTop);
 	}
 
 	bool computerVision::isLeft() {
-		return(horizontalPixels < 288);
+		return(horizontalPixels < horizontalCenterLeft);
 	}
 
 	bool computerVision::isRight() {
-		return(horizontalPixels > 352;
+		return(horizontalPixels > horizontalCenterRight;
 	}
 
 	bool computerVision::isTooLow() {
-		return(verticalPixels > 128;
+		return(verticalPixels > verticalCenterBottom;
 	}
 
 	bool computerVision::isTooHigh() {
-		return(verticalPixels  < 96);
+		return(verticalPixels  < verticalCenterTop);
 	}
 
 	// get pixelFactor experimentally
-	double computerVision::getHorizontalDistance() {
-		return (horizontalPixels * proxDistance * pixelFactor);
+	double computerVision::getDistanceDifference(int code) {
+		double difference;
+		if (code == 0) {
+			difference = verticalCenterTop - verticalPixels;
+		} else if (code == 1) {
+			difference = verticalCenterBottom - verticalPixels;
+		} else if (code == 2) {
+			difference = horizontalPixels - horizontalCenterRight;
+		} else { 
+			difference = horizontalPixels - horizontalCenterLeft;
+
+		}
+
+		return difference * pixelFactor;
+
 	}
 
-	double computerVision::getVerticalDistance() {
-		return(verticalPixels * proxDistance * pixelFactor);
-	}
 }
