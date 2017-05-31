@@ -1,49 +1,49 @@
 #ifndef COMPUTERVISION_HPP_
 #define COMPUTERVISION_HPP_
 
+#include <iostream>
+#include <fstream>
+
+/* camera frame constants */
+#define V_RANGE 480
+#define V_CENTERTOP 96
+#define V_CENTERBOTTOM 128
+#define H_RANGE 640
+#define H_CENTERLEFT 288
+#define H_CENTERRIGHT 352
 
 namespace cv {
-
-typedef unsigned int uint;
-const int verticalRange = 480;
-const int horizontalRange = 640;
-const int horizontalCenterLeft = 288;
-const int horizontalCenterRight = 352;
-const int verticalCenterTop = 96;
-const int verticalCenterBottom = 128;
 
 /*
  * Holds the frame and control flow logic for detecting
  * the shoelaces.
  */
 class computerVision {
-public: 
+  public: 
+    /* constructor(s) */
+    computerVision(char *pipe);
 
-	// initializes cv
-	computerVision(char *pipe);
-	//updates cv
-	void update(char *pipe);
-	// returns true if 
-	bool hasShoes();
+    /* cv state */
+    void update(char *pipe);
+    bool hasShoes();
+    bool getIRFlag();
+    double getProxDistance();
+    double getDistanceDifference();
 
-	bool isCentered();
-	bool isLeft();
-	bool isRight();
-	bool isTooHigh();
-	bool isTooLow();
-  bool getIRFlag();
-  double getProxDistance();
-	double getDistanceDifference();
+    /* positioning */
+    bool isCentered();
+    bool isLeft();
+    bool isRight();
+    bool isTooHigh();
+    bool isTooLow();
 
-private:
-	int horizontalPixels;
-	int verticalPixels;
-  bool irFlag;
-	double proxDistance;
-	double pixelFactor;
-	const char *pipe;
-	prevPoint prev;
-
+  private:
+    int horizontalPixels;
+    int verticalPixels;
+    bool irFlag;
+    double proxDistance;
+    double pixelFactor;
+    const char *pipe;
 };
 
 /*

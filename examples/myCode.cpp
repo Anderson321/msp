@@ -47,10 +47,10 @@ start:
     }
 
 
-    //begin defouling
-
+    /* BEGIN DEFOULING */ 
     char *pipe = "test";
-    cv::computerVision cv(pipe);  /* where is pipe initialized? */
+    cv::computerVision cv(pipe);
+    cv::prevPoint prevPoint();
 
     /* initially looking for shoes */
     while (!cv.hasShoes()) {
@@ -67,6 +67,7 @@ start:
      * - use condition rather than just true
      */
     while (true) {
+        /* cv "sees" shoes but not centered */
         while (cv.hasShoes() && !cv.isCentered()) {
             while (cv.isTooHigh()) {
                 double difference = cv.getDistanceDifference(0);
