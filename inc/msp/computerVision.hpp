@@ -31,11 +31,14 @@ public:
 	bool isRight();
 	bool isTooHigh();
 	bool isTooLow();
+  bool getIRFlag();
+  double getProxDistance();
 	double getDistanceDifference();
 
 private:
 	int horizontalPixels;
 	int verticalPixels;
+  bool irFlag;
 	double proxDistance;
 	double pixelFactor;
 	const char *pipe;

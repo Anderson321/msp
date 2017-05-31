@@ -87,7 +87,6 @@ namespace cv {
 			difference = horizontalPixels - horizontalCenterRight;
 		} else { 
 			difference = horizontalPixels - horizontalCenterLeft;
-
 		}
 
 		return difference * pixelFactor;
