@@ -52,23 +52,19 @@ start:
     char *pipe = "test";
 
     cv::computerVision cv(pipe);  /* where is pipe initialized? */
-    while(true)
-        while(!cv.hasShoes()) {
-            /* increase throttle and go up */
-            fcu.setRc(1500,1500,1500,1500,1000,1000,1000,1000);
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            cv.update(pipe);
-        }
-        /* back off throttle */
-        fcu.setRc(1500,1500,1500,1400,1000,1000,1000,1000);
+
+    while(!cv.hasShoes()) {
+        /* increase throttle and go up */
+        fcu.setRc(1500,1500,1500,1500,1000,1000,1000,1000);
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        cv.update(pipe);
+    }
+    /* back off throttle */
+    fcu.setRc(1500,1500,1500,1400,1000,1000,1000,1000);
+
+    while(true) {
 
         while(cv.hasShoes()) {
-
-            while(cv.isCentered()) {
-                // go forward 
-
-
-            }
 
             while(cv.isTooHigh()) {
                 double difference = cv.getDistanceDifference(0);
@@ -84,7 +80,7 @@ start:
 
             }
 
-    
+
             while(cv.isRight()) {
                 double difference = cv.getDistanceDifference(2);
                 // roll left
@@ -98,12 +94,28 @@ start:
                 // roll left
                 cv.update(pipe);
 
+            }
+
+            while(cv.isCentered()) {
+                // go forward 
+
+                goto finish;
+
 
             }
+        }
+
+        if(cv.prevPoint.getX()
+
+
+    }
+
+
 
 
 
         }
+finish: 
 
     fcu.disarm_block();
 
