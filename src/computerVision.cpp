@@ -16,6 +16,9 @@ namespace cv {
    */
 	computerVision::computerVision(const char *pipe) {
 		this->pipe = pipe;
+		this->prev = cv::prevPoint prevPoint();
+		//cv::prevPoint prevPoint();
+
 		std::ifstream ifs;
 		ifs.open(pipe, std::ifstream::in);
 		char c = ifs.get();
@@ -32,7 +35,7 @@ namespace cv {
    * Updates the fields by accepting a new pipe name.
    */
 	void computerVision::update(const char *pipe) {
-
+		this->prevPoint.update(this->horizontalPixels, this->verticalPixels);
 		std::ifstream ifs;
 		ifs.open(pipe, std::ifstream::in);
 		char c = ifs.get();
@@ -109,7 +112,7 @@ namespace cv {
    * Constructs Point for previous point shoes were seen at
    * in the camera frame.
    */
-  prevPoint::prevPoint(int x, int y) {
+  void prevPoint::update(int x, int y) {
     this->prevHorizontal = x;
     this->prevVertical   = y;
   }

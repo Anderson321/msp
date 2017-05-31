@@ -39,6 +39,7 @@ private:
 	double proxDistance;
 	double pixelFactor;
 	const char *pipe;
+	prevPoint prev;
 
 };
 

@@ -49,6 +49,8 @@ start:
 
     //begin defouling
 
+    char *pipe = "test";
+
     cv::computerVision cv(pipe);  /* where is pipe initialized? */
     while(true)
         while(!cv.hasShoes()) {
