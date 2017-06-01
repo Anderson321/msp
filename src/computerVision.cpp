@@ -12,38 +12,23 @@ namespace cv {
    * Constructs computerVision object for the given named
    * pipe string.
    */
-	computerVision::computerVision(const char *pipe) {
+	computerVision::computerVision(char *pipe) {
 		this->pipe = pipe;
-		// this->prev = cv::prevPoint prevPoint();
-		// cv::prevPoint prevPoint();
 
-		std::ifstream ifs;
-		ifs.open(pipe, std::ifstream::in);
-		char c = ifs.get();
-		//if (ifs.good()) {
-		this->horizontalPixels << c;
-		c = ifs.get();
-		this->verticalPixels << c;
-		c = ifs.get();
-		this->proxDistance << c;
-		//}
+		readPipe(pipe);
+		
 	}
 
 	/*
    * Updates the fields by accepting a new pipe name.
    */
-	void computerVision::update(const char *pipe) {
-		this->prevPoint.update(this->horizontalPixels, this->verticalPixels);
-		std::ifstream ifs;
-		ifs.open(pipe, std::ifstream::in);
-		char c = ifs.get();
-		//if (ifs.good()) {  /* this does not work */
-		this->horizontalPixels << c;
-		c = ifs.get();
-		this->verticalPixels << c;
-		c = ifs.get();
-		this->proxDistance << c;
-		//} 
+	void computerVision::update(char *pipe, prevPoint *prev) {
+
+		prev->update(this->horizontalPixels, this->verticalPixels);
+
+		readPipe(pipe);
+
+		
 	}
 
 	// returns if the line is within vertical and horizontal bounds
@@ -88,6 +73,42 @@ namespace cv {
 		}
 
 		return difference * pixelFactor;
+	}
+
+
+	int computerVision::readString(char *pipeString, int index) {
+    	std::string s;
+    	while(pipestring[index] != " ") {
+    		s += pipeString[index];
+    		index++;
+    	}
+		
+		return std::stoi(s);
+
+		
+	}
+
+	void computerVision::readPipe(char *pipe) {
+
+		std::ifstream ifs;
+		ifs.open(pipe, std::ifstream::in);
+
+		char pipeString[14]; 
+		ifs.get(s, 14);
+		
+
+		// Sets the fields by reading the pipe
+		this->horizontalPixels = readString(pipeString, 0);
+
+		this->verticalPixels = readString(pipeString, 4);
+
+		this->proxDistance = readString(pipeString, 8);
+		
+		if(readString(pipeString, 12) == 1) {
+			this->irFlag = true;
+		} else {
+			this->irFlag = false;
+
 	}
 
 

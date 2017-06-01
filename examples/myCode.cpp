@@ -57,7 +57,7 @@ start:
         /* increase throttle and go up */
         fcu.setRc(1500,1500,1500,1500,1000,1000,1000,1000);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        cv.update(pipe);
+        cv.update(pipe, prevPoint);
     }
     /* back off throttle and hover */
     fcu.setRc(1500,1500,1500,1400,1000,1000,1000,1000);
@@ -72,30 +72,30 @@ start:
             while (cv.isTooHigh()) {
                 double difference = cv.getDistanceDifference(0);
                 // go down a bit
-                cv.update(pipe);
+                cv.update(pipe, prevPoint);
             }
 
             while (cv.isTooLow()) {
                 double difference = cv.getDistanceDifference(1);
                 // go up a bit
-                cv.update(pipe);
+                cv.update(pipe, prevPoint);
             }
 
             while (cv.isRight()) {
                 double difference = cv.getDistanceDifference(2);
                 // roll left
-                cv.update(pipe);
+                cv.update(pipe, prevPoint);
             }
 
             while (cv.isLeft()) {
                 double difference = cv.getDistanceDifference(3);
                 // roll right
-                cv.update(pipe);
+                cv.update(pipe, prevPoint);
             }
         }
 
         /* drone is now centered on the mark */
-        while (cv.getProxDistance() < TOOCLOSE) {
+        while (cv.getProxDistance() > TOOCLOSE) {
             // move forward
             if (cv.getIRFlag()) {
                 // send cut signal

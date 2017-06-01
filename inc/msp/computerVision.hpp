@@ -4,6 +4,9 @@
 #include <iostream>
 #include <fstream>
 
+
+
+
 /* camera frame constants */
 #define V_RANGE 480
 #define V_CENTERTOP 96
@@ -37,12 +40,20 @@ class computerVision {
     bool isTooHigh();
     bool isTooLow();
 
+    /* reading the pipe */
+    int readString(char *pipeString, int index);
+    void readPipe(char *pipe);
+
+
+
   private:
     int horizontalPixels;
     int verticalPixels;
     bool irFlag;
     double proxDistance;
     double pixelFactor;
+
+    // does this need to be a const?
     const char *pipe;
 };
 
@@ -52,8 +63,11 @@ class computerVision {
  */
 class prevPoint {
   public:
+    prevPoint();
+    prevPoint(int x, int y);
     int getX();
     int getY();
+    void update(int x, int y);
 
   private:
     int prevHorizontal;
