@@ -11,6 +11,8 @@ int main(int argc, char *argv[]) {
     std::chrono::high_resolution_clock::time_point start, end;
     bool feature_changed = false;
 start:
+
+    /* Put in some sort of loop to make sure that it makes a connection? */
     fcu::FlightController fcu(device, baudrate);
 
     // wait until connection is established
@@ -46,99 +48,119 @@ start:
         std::cout<<"armed after: "<<std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count()<<" ms"<<std::endl;
     }
 
+    std::this_thread::sleep_for(std::chrono::seconds(10));
 
-    /* BEGIN DEFOULING */ 
+
+    /* initialize pipe, computerVision, prevPoint and prevRC*/ 
     char *pipe = "test";
     cv::computerVision cv(pipe);
     cv::prevPoint prevPoint();
+    cv::prevRC prevRC();
 
     /* initially looking for shoes */
     while (!cv.hasShoes()) {
         /* increase throttle and go up */
         fcu.setRc(1500,1500,1500,1500,1000,1000,1000,1000);
+        prevRC.update(1500,1500,1500,1500,1000,1000,1000,1000);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         cv.update(pipe, prevPoint);
     }
     /* back off throttle and hover */
-    fcu.setRc(1500,1500,1500,1400,1000,1000,1000,1000);
+
+    fcu.setRc(prevRC.getRoll(),prevRC.getPitch(),prevRC.getYaw(),prevRC.getThrottle() - 100,
+              prevRC.getAux1(),prevRC.getAux2(), prevRC.getAux3(),prevRC.getAux3());
+    prevRC.update
 
     /* main loop 
      * TODO:
      * - use condition rather than just true
      */
-   // while (true) {
-        /* cv "sees" shoes but not centered */
-        while (cv.hasShoes() && !cv.isCentered()) {
-        shoeFound:
+
+    shoeFound:
+    while (cv.hasShoes() && !cv.isCentered()) {
             while (cv.isTooHigh()) {
-                double difference = cv.getDistanceDifference(0);
-                // go down a bit
-                cv.update(pipe, prevPoint);
-            }
+            double difference = cv.getDistanceDifference(0);
 
-            while (cv.isTooLow()) {
-                double difference = cv.getDistanceDifference(1);
-                // go up a bit
-                cv.update(pipe, prevPoint);
-            }
 
-            while (cv.isRight()) {
-                double difference = cv.getDistanceDifference(2);
-                // roll left
-                cv.update(pipe, prevPoint);
-            }
-
-            while (cv.isLeft()) {
-                double difference = cv.getDistanceDifference(3);
-                // roll right
-                cv.update(pipe, prevPoint);
-            }
+            // go down a bit
+            cv.update(pipe, prevPoint);
         }
 
-        /* if cv loses vision of the shoes */
-        if(!cv.hasShoes()) {
-            while(prevPoint.getX() > 320)) {
-                if(prevPoint.getY() > 240) {
-                    /* previous point was in bottom right corner, roll right and decrease throttle */
-                    fcu.setRC(1600,1500,1500,1400,1000,1000,1000,1000);    
-                } else {
-                    /* previous point was in top right corner, roll right and increase throttle */
-                    fcu.setRC(1600,1500,1500,1700,1000,1000,1000,1000);
-                }
-                /* update */
-                cv.update(pipe, prevPoint);
-                if(cv.hasShoes()) {
-                    goto shoeFound;
-                }
+        while (cv.isTooLow()) {
+            double difference = cv.getDistanceDifference(1);
+            // go up a bit
+            cv.update(pipe, prevPoint);
+        }
 
+        while (cv.isRight()) {
+            double difference = cv.getDistanceDifference(2);
+            // roll left
+            cv.update(pipe, prevPoint);
+        }
+
+        while (cv.isLeft()) {
+            double difference = cv.getDistanceDifference(3);
+            // roll right
+            cv.update(pipe, prevPoint);
+        }
+    }
+
+    /* If cv loses vision of the shoes */
+    if(!cv.hasShoes()) {
+        while(prevPoint.getX() > H_RANGE / 2)) {
+            if(prevPoint.getY() > V_RANGE / 2) {
+                /* previous point was in bottom right corner, roll right and decrease throttle */
+                fcu.setRC(1600,1500,1500,1400,1000,1000,1000,1000);    
+            } else {
+                /* previous point was in top right corner, roll right and increase throttle */
+                fcu.setRC(1600,1500,1500,1700,1000,1000,1000,1000);
             }
-            while(prevPoint.getX() <= 320)) {
-                if(prevPoint.getY() > 240)) {
-                    /* previous point was in bottom left corner, roll left and decrease throttle */
-                    fcu.setRC(1400,1500,1500,1400,1000,1000,1000,1000);
-                } else {
-                    /* previous point was in top left corner, roll left and increase throttle */
-                    fcu.setRC(1400,1500,1500,1700,1000,1000,1000,1000);
-                }
-                cv.update(pipe, prevPoint);
-                if(cv.hasShoes()) {
-                    goto shoeFound;
-                }
-
+            /* update */
+            cv.update(pipe, prevPoint);
+            if(cv.hasShoes()) {
+                goto shoeFound;
             }
 
         }
-
-
-   //   }
-
-        /* drone is now centered on the mark */
-        while (cv.getProxDistance() > TOOCLOSE) {
-            // move forward
-            if (cv.getIRFlag()) {
-                // send cut signal
+        while(prevPoint.getX() <= H_RANGE / 2)) {
+            if(prevPoint.getY() > V_RANGE / 2)) {
+                /* previous point was in bottom left corner, roll left and decrease throttle */
+                fcu.setRC(1400,1500,1500,1400,1000,1000,1000,1000);
+            } else {
+                /* previous point was in top left corner, roll left and increase throttle */
+                fcu.setRC(1400,1500,1500,1700,1000,1000,1000,1000);
+            }
+            cv.update(pipe, prevPoint);
+            if(cv.hasShoes()) {
+                goto shoeFound;
             }
         }
+    }
+
+
+    /* Drone is now centered on the mark */
+    while (!cv.inRange()) {
+        // move forward
+
+        cv.update(pipe, prevPoint);
+        if(!cv.isCentered()) {
+            goto shoeFound;
+        }
+    }
+
+    /* Defouler is now in range, meaning there is no longer a y component in CV (y = -1), CV just gives
+     * the horizontal placement of the vertical line (shoelaces) 
+     */
+
+
+
+
+        
+
+        if (cv.getIRFlag()) {
+            // send cut signal
+        }
+    }
     
 
 finish: 

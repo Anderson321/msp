@@ -30,15 +30,17 @@ class computerVision {
     void update(char *pipe);
     bool hasShoes();
     bool getIRFlag();
-    double getProxDistance();
+    int getProxDistance();
     double getDistanceDifference();
 
     /* positioning */
     bool isCentered();
+    bool isCloseCentered();
     bool isLeft();
     bool isRight();
     bool isTooHigh();
     bool isTooLow();
+    bool inRange();
 
     /* reading the pipe */
     int readString(char *pipeString, int index);
@@ -73,6 +75,41 @@ class prevPoint {
     int prevHorizontal;
     int prevVertical;
 };
+
+class prevRC {
+  public:
+    /* constructors */
+    prevRC();
+    prevRC(int roll, int pitch, int yaw, int throttle, int aux1, int aux2, int aux3, int aux4);
+
+    /* get values */
+    int getRoll();
+    int getPitch();
+    int getYaw();
+    int getThrottle();
+    int getAux1();
+    int getAux2();
+    int getAux3();
+    int getAux4();
+
+    /* update the previous RC specified by channel */
+    void update(int[] channels, int[] values);
+
+  private:
+    int roll;
+    int pitch;
+    int yaw;
+    int throttle;
+    int aux1;
+    int aux2;
+    int aux3;
+    int aux4;
+
+};
+
+
+
+
 }
 
 #endif /* COMPUTERVISION_HPP_ */
