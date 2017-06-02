@@ -66,9 +66,10 @@ start:
      * TODO:
      * - use condition rather than just true
      */
-    while (true) {
+   // while (true) {
         /* cv "sees" shoes but not centered */
         while (cv.hasShoes() && !cv.isCentered()) {
+        shoeFound:
             while (cv.isTooHigh()) {
                 double difference = cv.getDistanceDifference(0);
                 // go down a bit
@@ -94,6 +95,39 @@ start:
             }
         }
 
+        /* if cv loses vision of the shoes */
+        if(!cv.hasShoes()) {
+            while(prevPoint.getX() > 320)) {
+                if(prevPoint.getY() > 240) {
+                    /* previous point was in bottom right corner, roll right and decrease throttle */
+                } else {
+                    /* previous point was in top right corner, roll right and increase throttle */
+                }
+                /* update */
+                cv.update(pipe, prevPoint);
+                if(cv.hasShoes()) {
+                    goto shoeFound;
+                }
+
+            }
+            while(prevPoint.getX() <= 320)) {
+                if(prevPoint.getY() > 240)) {
+                    /* previous point was in bottom left corner, roll left and decrease throttle */
+                } else {
+                    /* previous point was in top left corner, roll left and increase throttle */
+                }
+                cv.update(pipe, prevPoint);
+                if(cv.hasShoes()) {
+                    goto shoeFound;
+                }
+
+            }
+
+        }
+
+
+   //   }
+
         /* drone is now centered on the mark */
         while (cv.getProxDistance() > TOOCLOSE) {
             // move forward
@@ -101,7 +135,7 @@ start:
                 // send cut signal
             }
         }
-    }
+    
 
 finish: 
     fcu.disarm_block();

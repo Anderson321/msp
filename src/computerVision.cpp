@@ -24,9 +24,17 @@ namespace cv {
    */
 	void computerVision::update(char *pipe, prevPoint *prev) {
 
-		prev->update(this->horizontalPixels, this->verticalPixels);
+		int tempHor = this->horizontalPixels;
+		int tempVer = this->verticalPixels;
 
 		readPipe(pipe);
+
+		if(this->horizontalPixels != -1 && this->verticalPixels != -1) {
+			prev->update(tempHor, tempVer);
+		}
+		
+
+		
 
 		
 	}
@@ -110,6 +118,10 @@ namespace cv {
 			this->irFlag = false;
 		}
 
+	}
+
+	bool computerVision::getIRFlag() {
+		return this->irFlag;
 	}
 
 
