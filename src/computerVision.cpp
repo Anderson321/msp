@@ -108,6 +108,7 @@ namespace cv {
 			this->irFlag = true;
 		} else {
 			this->irFlag = false;
+		}
 
 	}
 
