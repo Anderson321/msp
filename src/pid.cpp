@@ -1,183 +1,127 @@
-/*
- * Matthew Valuet
- *
- * pid.cpp: Defines construction and operation of a single
- *          software PID controller.
- *
- *          Assumptions made:
- *          - PID controller set about single "desired"
- *            point and input changed accordingly
- *                => reduce "derivative kick"
- *          - User is responsible for calling
- *            compute_output on either faster or at the same
- *            sampling frequency as set in set_sampling
- *          - User is responsible for setting reasonable
- *            bounds for controller output 
- *          
- *          In use with the quadcopter capstone, a single
- *          instantiation of a PID object should be used
- *          for each axis being controlled.
- */
+#include "pid.h"
 
-#include "pid.hpp"
+/* constructor(s) */
+PID::PID(float kp, float ki, float kd) {
+  this->kp = kp;
+  this->ki = ki;
+  this->kd = kd;
 
-/*
- * Contruct new PID controller initialized at zero for
- * proportional, integral, and derivative constants.
- */
-pid::pid() {
-    pid::pid(0, 0, 0);
+  min = 0;
+  max = 1000;
+  iTerm = 0;
+  prevInput = prevOutput = 0;
+  prevMode = autoMode = AUTOMATIC;
+  prevTime = TimePoint();
 }
 
-/*
- * Construct new PID controller with Kp, Ki, and Kd for the
- * initial controller constants.
- */
-pid::pid(float Kp, float Ki, float Kd) {
-    sample_time = 1 / DEFAULT_SAMP_SEC;
-    prev_time = 0;
-
-    prev_input = prev_desired = 0;
-    prev_error = 0;
-    set_outbounds(DEFAULT_MIN_OUT, DEFAULT_MAX_OUT);
-
-    kp = Kp;
-    ki = Ki;
-    kd = Kd;
-
-    auto_control = AUTOMATIC;
-}
-
-/*
- * Given an input value and the desired set point,
- * computes the PID output of the controller and returns it.
- */
-float pid::compute_output(float input, float desired) {
-    if (!auto_control) {
-        return 0;
-    }
-
-    /* calculate the new time difference */
-    float t_diff;
-    clock_t now = clock();
-    if (prev_time == 0)
-        t_diff = sample_time;
-    else
-        t_diff = (float)(now - prev_time) / CLOCKS_PER_SEC;
-
-    /* enough time has passed to sample again */
-    if (t_diff >= sample_time) {
-        float d_desired = desired - prev_desired;
-        float d_input = input - prev_input;
-
-        /* new error values */
-        float error = desired - input;
-        float d_error = (d_desired - d_input) / t_diff;
-
-        /* computing integral term within specified bounds */
-        i_term += (ki * error * t_diff);
-
-        /* remember variables */
-        prev_time = now;
-        prev_error = error;
-
-        float ret = (kp * error) + (i_term) + (kd * d_error);
-        /* clamp controller output bounds */
-        if (ret > max_out)
-            return max_out;
-        else if (ret < min_out)
-            return min_out;
-        else
-            return ret;
-    }
-
+float PID::computeOutput(float input, float setpoint) {
+  if (!autoMode) {
     return 0;
-}
+  } else if (prevMode == MANUAL && autoMode == AUTOMATIC) {
+    prevInput = input;
+    prevMode = autoMode;
 
-/*
- * Sets the controller's sampling period to the given
- * frequency. Do not call after compute_output.
- */
-void pid::set_sampling(unsigned int freq) {
-    sample_time = 1 / freq;
-}
-
-/*
- * Given a maximum and minimum bound, sets the output
- * bounds of the contoller and integral term to disperse
- * with controller reset windup.
- */
-void pid::set_outbounds(float min, float max) {
-    if (min < max) {
-        min_out = min;
-        max_out = max;
-
-        /* clamp integral term to limits */
-        if (i_term > max_out)
-            i_term = max_out;
-        else if (i_term < min_out)
-            i_term = min_out;
-    } else {
-        printf("Invalid bounds given... min = %0.3f, max = %0.3f\n", min, max);
+    iTerm = prevOutput;
+    if (iTerm > max) {
+      iTerm = max;
+    } else if (iTerm < min) {
+      iTerm = min;
     }
+  }
+
+  auto currentTime = HighResClock::now();
+  float timeDiff = std::chrono::duration_cast<std::chrono::duration<float>>
+                                          (currentTime - prevTime).count();
+  // float timeDiff;
+  // if (operator!=(prevTime, TimePoint())) {
+  //   std::cout << "not equal..." << std::endl;
+  //   timeDiff = std::chrono::duration_cast<std::chrono::duration<float>>
+  //                                     (currentTime - prevTime).count();
+  // } else {
+  //   std::cout << "equal..." << std::endl;
+  //   auto tempTime = HighResClock::now();
+  //   timeDiff = std::chrono::duration_cast<std::chrono::duration<float>>
+  //                                     (tempTime - currentTime).count();
+  // }
+                                      
+
+  /* 
+   * TODO:
+   * figure out why timeDiff is freaking out the controller
+   */
+  float error = setpoint - input;
+  float deltaError = (input - prevInput) / timeDiff;
+
+  iTerm += (ki * error) * timeDiff;
+  if (iTerm > max) {
+    iTerm = max;
+  } else if (iTerm < min) {
+    iTerm = min;
+  }
+
+  prevInput = input;
+  prevTime = currentTime;
+  float output = (kp * error) + (iTerm) - (kd * deltaError);
+  if (output > max) {
+    output = max;
+  } else if (output < min) {
+    output = min;
+  }
+  prevOutput = output;
+
+  /* diagnostics */
+  // std::cout << "[diagnostics]: timeDiff: "   << timeDiff   << std::endl;
+  // std::cout << "[diagnostics]: error: "      << error      << std::endl;
+  // std::cout << "[diagnostics]: iTerm : "     << iTerm      << std::endl;
+  // std::cout << "[diagnostics]: deltaError: " << deltaError << std::endl;
+  return output;
 }
 
-/*
- * Allows user to specify whether the PID controller moves
- * the output or not based on the given mode.
- */
-void pid::set_mode(unsigned int mode) {
-    if (mode != MANUAL || mode != AUTOMATIC) {
-        printf("Mode option %d invalid...\n", mode);
-        printf("Current mode... ");
-        if (auto_control) {
-            printf("AUTOMATIC\n");
-        } else {
-            printf("MANUAL\n");
-        }
-    } else {
-        auto_control = mode;
-    }
+void PID::setOutputBounds(float min, float max) {
+  if (min < max) {
+    this->min = min;
+    this->max = max;
+  }
+
+  if (iTerm > this->max) {
+    iTerm = this->max;
+  } else if (iTerm < this->min) {
+    iTerm = this->min;
+  }
 }
 
-/*
- * Sets proportional constant to given value.
- */
-void pid::set_kp(float Kp) {
-    kp = Kp;
+void PID::setMode(int mode) {
+  if (mode != MANUAL && mode != AUTOMATIC) {
+    std::cout << "invalid mode passed... use either MANUAL or AUTOMATIC..."
+              << std::endl;
+  } else {
+    this->prevMode = !mode;
+    this->autoMode = mode;
+  }
 }
 
-/*
- * Sets integral constant to given value.
- */
-void pid::set_ki(float Ki) {
-    ki = Ki;
+
+/* accessors & setters */
+float PID::getKp() {
+  return this->kp;
 }
 
-/*
- * Sets derivative constant to given value.
- */
-void pid::set_kd(float Kd) {
-    kd = Kd;
+float PID::getKi() {
+  return this->ki;
 }
 
-/*
- * Returns current proportional constant.
- */
-float pid::get_kp() {
-    return kp;
+float PID::getKd() {
+  return this->kd;
 }
 
-/*
- * Returns current integral constant.
- */
-float pid::get_ki() {
-    return ki;
+void PID::setKp(float kp) {
+  this->kp = kp;
 }
 
-/*
- * Returns current derivative constant.
- */
-float pid::get_kd() {
-    return kd;
+void PID::setKi(float ki) {
+  this->ki = ki;
+}
+
+void PID::setKd(float kd) {
+  this->kd = kd;
 }

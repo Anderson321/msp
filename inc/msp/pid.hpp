@@ -1,59 +1,36 @@
-/*
- * Matthew Valuet
- *
- * pid.hpp: Contains all relevant includes, globals, and
- *          classes for a single software PID controller.
- */
-
-#ifndef PID_CONTROLLER_
-#define PID_CONTROLLER_
+#ifndef PID_CONTROLLER_H_
+#define PID_CONTROLLER_H_
 
 #include <iostream>
-#include <fstream>
-#include <ctime>
+#include <chrono>
 
-#define DEFAULT_SAMP_SEC 2
-#define DEFAULT_MIN_OUT 0
-#define DEFAULT_MAX_OUT 255
+using HighResClock = std::chrono::high_resolution_clock;
+using TimePoint = std::chrono::time_point<HighResClock>;
 
-enum {
-    MANUAL,
-    AUTOMATIC
-};
+enum { MANUAL, AUTOMATIC };
 
-class pid {
-public:
-    pid();
-    pid(float Kp, float Ki, float Kd);
+class PID {
+  public:
+    PID(float kp, float ki, float kd);
+    float computeOutput(float input, float setpoint);
+    void  setOutputBounds(float min, float max);
+    float getKp();
+    float getKi();
+    float getKd();
+    void  setKp(float kp);
+    void  setKi(float ki);
+    void  setKd(float kd);
+    void  setMode(int mode);
 
-    float compute_output(float input, float desired);
-    void set_sampling(unsigned int freq);
-    void set_outbounds(float min, float max);
-    void set_mode(unsigned int mode);
+  private:
+    // void clampBounds(float x);
 
-    float get_kp();
-    float get_ki();
-    float get_kd();
-
-    void set_kp(float Kp);
-    void set_ki(float Ki);
-    void set_kd(float Kd);
-
-private:
-    /* timing */
-    clock_t prev_time;
-    unsigned long sample_time;
-
-    /* state variables */
-    float prev_input, prev_desired;
-    float prev_error;
-    float max_out, min_out;
-
-    /* tuning constants */
+    bool  autoMode, prevMode;
     float kp, ki, kd;
-    float i_term;
-
-    bool auto_control;
+    float min, max;
+    float iTerm;
+    float prevInput, prevOutput;
+    TimePoint prevTime;
 };
 
-#endif /* PID_CONTROLLER_ */
+#endif /* PID_CONTROLLER_H_ */
