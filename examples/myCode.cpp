@@ -100,8 +100,10 @@ start:
             while(prevPoint.getX() > 320)) {
                 if(prevPoint.getY() > 240) {
                     /* previous point was in bottom right corner, roll right and decrease throttle */
+                    fcu.setRC(1600,1500,1500,1400,1000,1000,1000,1000);    
                 } else {
                     /* previous point was in top right corner, roll right and increase throttle */
+                    fcu.setRC(1600,1500,1500,1700,1000,1000,1000,1000);
                 }
                 /* update */
                 cv.update(pipe, prevPoint);
@@ -113,8 +115,10 @@ start:
             while(prevPoint.getX() <= 320)) {
                 if(prevPoint.getY() > 240)) {
                     /* previous point was in bottom left corner, roll left and decrease throttle */
+                    fcu.setRC(1400,1500,1500,1400,1000,1000,1000,1000);
                 } else {
                     /* previous point was in top left corner, roll left and increase throttle */
+                    fcu.setRC(1400,1500,1500,1700,1000,1000,1000,1000);
                 }
                 cv.update(pipe, prevPoint);
                 if(cv.hasShoes()) {
