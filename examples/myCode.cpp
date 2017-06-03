@@ -69,7 +69,8 @@ start:
 
     fcu.setRc(prevRC.getRoll(),prevRC.getPitch(),prevRC.getYaw(),prevRC.getThrottle() - 100,
               prevRC.getAux1(),prevRC.getAux2(), prevRC.getAux3(),prevRC.getAux3());
-    prevRC.update
+
+    prevRC.update((int[]){0,0,0,1,0,0,0,0}, (int[]){prevRC.getThrottle() - 100});
 
     /* main loop 
      * TODO:
@@ -78,58 +79,69 @@ start:
 
     shoeFound:
     while (cv.hasShoes() && !cv.isCentered()) {
-            while (cv.isTooHigh()) {
+        while (cv.isTooHigh()) {
             double difference = cv.getDistanceDifference(0);
 
-
-            // go down a bit
+            /* Increase throttle a bit using PID
+            *  Update the previous RC 
+            *  Udate the computer Vision and prevPoint
+            */
             cv.update(pipe, prevPoint);
         }
 
         while (cv.isTooLow()) {
             double difference = cv.getDistanceDifference(1);
-            // go up a bit
+
+            /* Decrease throttle a bit using PID
+            *  Update the previous RC 
+            *  Udate the computer Vision and prevPoint
+            */
             cv.update(pipe, prevPoint);
         }
 
         while (cv.isRight()) {
             double difference = cv.getDistanceDifference(2);
-            // roll left
+
+            /* Roll right a bit using PID
+            *  Update the previous RC 
+            *  Udate the computer Vision and prevPoint
+            */
             cv.update(pipe, prevPoint);
         }
 
         while (cv.isLeft()) {
             double difference = cv.getDistanceDifference(3);
-            // roll right
+
+            /* Roll left a bit using PID
+            *  Update the previous RC 
+            *  Udate the computer Vision and prevPoint
+            */
             cv.update(pipe, prevPoint);
         }
     }
 
     /* If cv loses vision of the shoes */
     if(!cv.hasShoes()) {
-        while(prevPoint.getX() > H_RANGE / 2)) {
-            if(prevPoint.getY() > V_RANGE / 2) {
-                /* previous point was in bottom right corner, roll right and decrease throttle */
-                fcu.setRC(1600,1500,1500,1400,1000,1000,1000,1000);    
+        int roll;
+        int throttle;
+        while(true) {
+            if(prevPoint.getX() > H_RANGE / 2) {
+                roll = prevRC.getRoll() + 100;
             } else {
-                /* previous point was in top right corner, roll right and increase throttle */
-                fcu.setRC(1600,1500,1500,1700,1000,1000,1000,1000);
+                roll = prevRC.getRoll() - 100;
             }
-            /* update */
-            cv.update(pipe, prevPoint);
-            if(cv.hasShoes()) {
-                goto shoeFound;
+            
+            if(prevPoint.getY() > V_RANGE / 2) {
+                throttle = prevRC.getThrottle() - 100;
+            } else {
+                throttle = prevRC.getThrottle() + 100;
             }
 
-        }
-        while(prevPoint.getX() <= H_RANGE / 2)) {
-            if(prevPoint.getY() > V_RANGE / 2)) {
-                /* previous point was in bottom left corner, roll left and decrease throttle */
-                fcu.setRC(1400,1500,1500,1400,1000,1000,1000,1000);
-            } else {
-                /* previous point was in top left corner, roll left and increase throttle */
-                fcu.setRC(1400,1500,1500,1700,1000,1000,1000,1000);
-            }
+            fcu.setRC(roll, prevRC.getPitch(),prevRC.getYaw(), throttle,
+                          prevRC.getAux1(), prevRC.getAux2(), prevRC.getAux3(), prevRC.getAux4());
+
+            /* update */
+            prevRc.update((int[]){1,0,0,1,0,0,0,0}, (int[]){roll, throttle});
             cv.update(pipe, prevPoint);
             if(cv.hasShoes()) {
                 goto shoeFound;
@@ -152,7 +164,7 @@ start:
      * the horizontal placement of the vertical line (shoelaces) 
      */
 
-
+    // THIS NEEDS TO BE DONE
 
 
         

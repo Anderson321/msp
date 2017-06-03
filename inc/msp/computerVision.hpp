@@ -93,17 +93,10 @@ class prevRC {
     int getAux4();
 
     /* update the previous RC specified by channel */
-    void update(int[] channels, int[] values);
+    void update(int channels[], int values[]);
 
-  private:
-    int roll;
-    int pitch;
-    int yaw;
-    int throttle;
-    int aux1;
-    int aux2;
-    int aux3;
-    int aux4;
+  private: 
+    int values[8];
 
 };
 

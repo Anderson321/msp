@@ -32,11 +32,7 @@ namespace cv {
 		if(this->horizontalPixels != -1 && this->verticalPixels != -1) {
 			prev->update(tempHor, tempVer);
 		}
-		
-
-		
-
-		
+	
 	}
 
 	// returns if the line is within vertical and horizontal bounds
@@ -193,50 +189,44 @@ namespace cv {
 	}
 
     prevRC::prevRC(int roll, int pitch, int yaw, int throttle, int aux1, int aux2, int aux3, int aux4) {
-    	this->roll = roll;
-    	this->pitch = pitch;
-    	this->yaw = yaw;
-    	this->throttle = throttle;
-    	this->aux1 = aux1;
-    	this->aux2 = aux2;
-    	this->aux3 = aux3;
-    	this->aux4 = aux4;
-
+    	this->values = {roll, pitch, yaw, throttle, aux1, aux2, aux3, aux4}; 	
     }
+
     int prevRC::getRoll() {
-    	return roll;
+    	return this->values[0];
     }
     int prevRC::getPitch() {
-    	return pitch;
+    	return this->values[1];
     }
     int prevRC::getYaw() {
-    	return yaw;
+    	return this->values[2];
     }
     int prevRC::getThrottle() {
-    	return throttle;
+    	return this->values[3];
     }
     int prevRC::getAux1() {
-    	return aux1;
+    	return this->values[4];
     }
     int prevRC::getAux2() {
-    	return aux2;
+    	return this->values[5];
     }
     int prevRC::getAux3() {
-    	return aux3;
+    	return this->values[6];
     }
     int prevRC::getAux4() {
-    	return aux4;
+    	return this->values[7];
     }
-    void update(int[] channel, int[] values) {
 
-   		
-    	this->roll = roll;
-    	this->pitch = pitch;
-    	this->yaw = yaw;
-    	this->throttle = throttle;
-    	this->aux1 = aux1;
-    	this->aux2 = aux2;
-    	this->aux3 = aux3;
-    	this->aux4 = aux4;
+    /
+    void prevRC::update(int channels[], int values[]) {
+    	int valuesIndex;
+    	for(int i = 0; i < 8; i++) {
+    		if (channel[i] == 1) {
+    			this->values[i] = values[i];
+    			valuesIndex++;
+    		}
+
+    	}
+
     }
 }
