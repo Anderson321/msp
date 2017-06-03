@@ -76,11 +76,15 @@ class prevPoint {
     int prevVertical;
 };
 
+/*
+ * Holds value of previous quadcopter RC values. 
+ */
 class prevRC {
   public:
     /* constructors */
     prevRC();
-    prevRC(int roll, int pitch, int yaw, int throttle, int aux1, int aux2, int aux3, int aux4);
+    prevRC(int roll, int pitch, int yaw, int throttle,
+           int aux1, int aux2, int aux3, int aux4);
 
     /* get values */
     int getRoll();
@@ -105,4 +109,4 @@ class prevRC {
 
 }
 
-#endif /* COMPUTERVISION_HPP_ */
+#endif  /* COMPUTERVISION_HPP_ */

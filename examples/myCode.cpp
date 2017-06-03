@@ -3,12 +3,14 @@
 #include <iostream>
 #include <chrono>
 
+using HighResClock = std::chrono::high_resolution_clock;
+using TimePoint = HighResClock::time_point;
 
 int main(int argc, char *argv[]) {
     const std::string device = (argc>1) ? std::string(argv[1]) : "/dev/ttyUSB0";
     const uint baudrate = (argc>2) ? std::stoul(argv[2]) : 115200;
 
-    std::chrono::high_resolution_clock::time_point start, end;
+    TimePoint start, end;
     bool feature_changed = false;
 start:
 
@@ -17,15 +19,17 @@ start:
 
     // wait until connection is established
     // get unique box IDs
-    start = std::chrono::high_resolution_clock::now();
+    start = HighResClock::now();
     fcu.initialise();
-    end = std::chrono::high_resolution_clock::now();
-    std::cout<<"ready after: "<<std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count()<<" ms"<<std::endl;
+    end = HighResClock::now();
+    std::cout << "ready after: "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count()
+              << " ms" << std::endl;
 
     // on cleanflight, we need to enable the "RX_MSP" feature
     if (fcu.isFirmwareCleanflight()) {
-        if (fcu.enableRxMSP()==1) {
-            std::cout<<"RX_MSP enabled, restart"<<std::endl;
+        if (fcu.enableRxMSP() == 1) {
+            std::cout << "RX_MSP enabled, restart" << std::endl;
             feature_changed = true;
             goto start;
         }
@@ -36,16 +40,18 @@ start:
         }
     }
 
-    std::cout<<"Armed? "<<fcu.isArmed()<<std::endl;
+    std::cout << "Armed? " << fcu.isArmed() << std::endl;
 
     // arm the FC
-    std::cout<<"Arming..."<<std::endl;
-    start = std::chrono::high_resolution_clock::now();
+    std::cout << "Arming..." << std::endl;
+    start = HighResClock::now();
     fcu.arm_block();
-    end = std::chrono::high_resolution_clock::now();
+    end = HighResClock::now();
 
     if (fcu.isArmed()) {
-        std::cout<<"armed after: "<<std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count()<<" ms"<<std::endl;
+        std::cout << "armed after: "
+                  << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count()
+                  << " ms"<<std::endl;
     }
 
     std::this_thread::sleep_for(std::chrono::seconds(10));
@@ -60,15 +66,15 @@ start:
     /* initially looking for shoes */
     while (!cv.hasShoes()) {
         /* increase throttle and go up */
-        fcu.setRc(1500,1500,1500,1500,1000,1000,1000,1000);
-        prevRC.update(1500,1500,1500,1500,1000,1000,1000,1000);
+        fcu.setRc(1500, 1500, 1500, 1500, 1000, 1000, 1000, 1000);
+        prevRC.update(1500, 1500, 1500, 1500, 1000, 1000, 1000, 1000);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         cv.update(pipe, prevPoint);
     }
     /* back off throttle and hover */
-
-    fcu.setRc(prevRC.getRoll(),prevRC.getPitch(),prevRC.getYaw(),prevRC.getThrottle() - 100,
-              prevRC.getAux1(),prevRC.getAux2(), prevRC.getAux3(),prevRC.getAux3());
+    fcu.setRc(prevRC.getRoll(), prevRC.getPitch(), prevRC.getYaw(),
+              prevRC.getThrottle() - 100, prevRC.getAux1(), prevRC.getAux2(),
+              prevRC.getAux3(), prevRC.getAux3());
 
     prevRC.update((int[]){0,0,0,1,0,0,0,0}, (int[]){prevRC.getThrottle() - 100});
 
@@ -121,29 +127,30 @@ start:
     }
 
     /* If cv loses vision of the shoes */
-    if(!cv.hasShoes()) {
+    if (!cv.hasShoes()) {
         int roll;
         int throttle;
-        while(true) {
-            if(prevPoint.getX() > H_RANGE / 2) {
+        while (true) {
+            if (prevPoint.getX() > H_RANGE / 2) {
                 roll = prevRC.getRoll() + 100;
             } else {
                 roll = prevRC.getRoll() - 100;
             }
             
-            if(prevPoint.getY() > V_RANGE / 2) {
+            if (prevPoint.getY() > V_RANGE / 2) {
                 throttle = prevRC.getThrottle() - 100;
             } else {
                 throttle = prevRC.getThrottle() + 100;
             }
 
-            fcu.setRC(roll, prevRC.getPitch(),prevRC.getYaw(), throttle,
-                          prevRC.getAux1(), prevRC.getAux2(), prevRC.getAux3(), prevRC.getAux4());
+            fcu.setRC(roll, prevRC.getPitch(), prevRC.getYaw(), throttle,
+                                      prevRC.getAux1(), prevRC.getAux2(),
+                                      prevRC.getAux3(), prevRC.getAux4());
 
             /* update */
             prevRc.update((int[]){1,0,0,1,0,0,0,0}, (int[]){roll, throttle});
             cv.update(pipe, prevPoint);
-            if(cv.hasShoes()) {
+            if (cv.hasShoes()) {
                 goto shoeFound;
             }
         }
@@ -155,7 +162,7 @@ start:
         // move forward
 
         cv.update(pipe, prevPoint);
-        if(!cv.isCentered()) {
+        if (!cv.isCentered()) {
             goto shoeFound;
         }
     }
