@@ -171,16 +171,71 @@ start:
      * the horizontal placement of the vertical line (shoelaces) 
      */
 
-    // THIS NEEDS TO BE DONE
 
+    while(true){
+        while (cv.isCloseCentered()) {
+            /* move forward */
 
-        
+            cv.update(pipe, prevPoint);
+                while (cv.getIRFlag()) {
+                    /* move forward very slowly */ 
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                    cv.update(pipe, prevPoint);
+                    if (cv.hasCut()) {
+                        fcu.setRC(prevRC.getRoll(), prevRC.getPitch(), prevRC.getYaw(), prevRc.getThrottle() - 100,
+                                          prevRC.getAux1(), prevRC.getAux2(),
+                                          prevRC.getAux3(), prevRC.getAux4());
 
-        if (cv.getIRFlag()) {
-            // send cut signal
+                        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+                        fcu.setRC(prevRC.getRoll(), prevRC.getPitch(), prevRC.getYaw(), prevRc.getThrottle() - 200,
+                                          prevRC.getAux1(), prevRC.getAux2(),
+                                          prevRC.getAux3(), prevRC.getAux4());
+
+                        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+                        fcu.setRC(prevRC.getRoll(), prevRC.getPitch(), prevRC.getYaw(), prevRc.getThrottle() - 300,
+                                          prevRC.getAux1(), prevRC.getAux2(),
+                                          prevRC.getAux3(), prevRC.getAux4());
+
+                        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+                        fcu.setRC(1500, 1500, 1500, 1000,
+                                          prevRC.getAux1(), prevRC.getAux2(),
+                                          prevRC.getAux3(), prevRC.getAux4());
+
+                         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+                         goto finish;
+                    }
+              
+            }
         }
-    }
-    
+
+
+        while (cv.isRight()) {
+            double difference = cv.getDistanceDifference(2);
+
+            /* Roll right a bit using PID
+            *  Update the previous RC 
+            *  Udate the computer Vision and prevPoint
+            */
+            cv.update(pipe, prevPoint);
+
+
+        }
+
+        while (cv.isLeft()) {
+                double difference = cv.getDistanceDifference(3);
+
+                /* Roll left a bit using PID
+                *  Update the previous RC 
+                *  Udate the computer Vision and prevPoint
+                */
+                cv.update(pipe, prevPoint);
+        }
+
+    }   
 
 finish: 
     fcu.disarm_block();
@@ -236,6 +291,4 @@ finish:
 
 
 
-
-}
 

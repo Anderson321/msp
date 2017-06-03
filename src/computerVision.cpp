@@ -80,11 +80,15 @@ namespace cv {
 			difference = V_CENTERBOTTOM - verticalPixels;
 		} else if (code == 2) {
 			difference = horizontalPixels - H_CENTERRIGHT;
-		} else { 
+		} else {                                           
 			difference = horizontalPixels - H_CENTERLEFT;
 		}
 
 		return difference * pixelFactor;
+	}
+
+	bool computerVision::hasCut() {
+		return (this->verticalPixels == -1 && this->horizontalPixels == -1);
 	}
 
 	int computerVision::getProxDistance() {
@@ -93,7 +97,7 @@ namespace cv {
 
 	int computerVision::readString(char *pipeString, int index) {
     	std::string s;
-    	while(pipestring[index] != " ") {
+    	while(pipestring[index] != "_") {
     		s += pipeString[index];
     		index++;
     	}

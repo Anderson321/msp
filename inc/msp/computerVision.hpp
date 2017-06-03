@@ -14,6 +14,7 @@
 #define H_RANGE 640
 #define H_CENTERLEFT 288
 #define H_CENTERRIGHT 352
+#define INRANGE 25
 
 namespace cv {
 
@@ -32,6 +33,7 @@ class computerVision {
     bool getIRFlag();
     int getProxDistance();
     double getDistanceDifference();
+    bool hasCut();
 
     /* positioning */
     bool isCentered();
@@ -45,6 +47,8 @@ class computerVision {
     /* reading the pipe */
     int readString(char *pipeString, int index);
     void readPipe(char *pipe);
+
+
 
 
 
