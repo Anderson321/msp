@@ -58,10 +58,9 @@ start:
     std::this_thread::sleep_for(std::chrono::seconds(5));
     int increment = 0;
     for (int i = 0; i < 10; i++) {
-        fcu.setRc(1500, 1500, 1500, 1850 - increment, 1500, 1500, 1500, 1500)
+        fcu.setRc(1500, 1500, 1500, 1850 - increment, 1500, 1500, 1500, 1500);
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        increment + 50;
+        increment += 50;
     }
-    fcu.disarm_Block();
-    
-
+    fcu.disarm_block();
+} 
