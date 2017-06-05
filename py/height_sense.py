@@ -10,8 +10,8 @@ ECHO_H = 21
 
 GPIO.setup(ECHO_TRIG_H, GPIO.OUT, initial=GPIO.LOW)
 GPIO.setup(ECHO_H, GPIO.IN)
-pulse_start = 0
-pulse_end = 0
+pulse_start = long(0)
+pulse_end = long(0)
 
 for x in range(0,30):
     GPIO.output(ECHO_TRIG_H, 1)
@@ -26,7 +26,11 @@ for x in range(0,30):
     pulse_duration = pulse_end - pulse_start 
     height = round(pulse_duration * 17150, 3)
     print('Echo (cm):', height)
-	# write height to pipe, maybe a separate pipe from the x,y,z,T code
+
+	with open('pipeH', 'w') as pipeH:
+        print("writing to pipeH now...")
+        pipeH.write(height)
     sleep(.4)    
 
 print("Done_trial")
+pipeH.close()
