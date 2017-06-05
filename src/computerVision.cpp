@@ -111,7 +111,7 @@ namespace cv {
 		ifs.open(pipe, std::ifstream::in);
 
 		char pipeString[14]; 
-		ifs.get(s, 14);
+		ifs.get(pipeString, 14);
 		
 
 		// Sets the fields by reading the pipe
