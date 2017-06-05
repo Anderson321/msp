@@ -4,9 +4,6 @@
 #include <iostream>
 #include <fstream>
 
-
-
-
 /* camera frame constants */
 #define V_RANGE 480
 #define V_CENTERTOP 96
@@ -17,51 +14,6 @@
 #define INRANGE 25
 
 namespace cv {
-
-/*
- * Holds the frame and control flow logic for detecting
- * the shoelaces.
- */
-class computerVision {
-  public: 
-    /* constructor(s) */
-    computerVision(char *pipe);
-
-    /* cv state */
-    void update(char *pipe);
-    bool hasShoes();
-    bool getIRFlag();
-    int getProxDistance();
-    double getDistanceDifference();
-    bool hasCut();
-
-    /* positioning */
-    bool isCentered();
-    bool isCloseCentered();
-    bool isLeft();
-    bool isRight();
-    bool isTooHigh();
-    bool isTooLow();
-    bool inRange();
-
-    /* reading the pipe */
-    int readString(char *pipeString, int index);
-    void readPipe(char *pipe);
-
-
-
-
-
-  private:
-    int horizontalPixels;
-    int verticalPixels;
-    bool irFlag;
-    double proxDistance;
-    double pixelFactor;
-
-    // does this need to be a const?
-    const char *pipe;
-};
 
 /*
  * Holds value of previous frame point where the shoes
@@ -105,11 +57,47 @@ class prevRC {
 
   private: 
     int values[8];
-
 };
 
+/*
+ * Holds the frame and control flow logic for detecting
+ * the shoelaces.
+ */
+class computerVision {
+  public: 
+    /* constructor(s) */
+    computerVision(const char *pipe);
 
+    /* cv state */
+    void update(const char *pipe, cv::prevPoint *prev);
+    bool hasShoes();
+    bool getIRFlag();
+    int getProxDistance();
+    double getDistanceDifference(int code);
+    bool hasCut();
 
+    /* positioning */
+    bool isCentered();
+    bool isCloseCentered();
+    bool isLeft();
+    bool isRight();
+    bool isTooHigh();
+    bool isTooLow();
+    bool inRange();
+
+    /* reading the pipe */
+    int readString(const char *pipeString, int index);
+    void readPipe(const char *pipe);
+
+  private:
+    int horizontalPixels;
+    int verticalPixels;
+    bool irFlag;
+    double proxDistance;
+    double pixelFactor;
+
+    const char *pipe;
+};
 
 }
 

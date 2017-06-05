@@ -1,3 +1,4 @@
+#include <string>
 #include "computerVision.hpp"
 
 namespace cv {
@@ -12,7 +13,7 @@ namespace cv {
    * Constructs computerVision object for the given named
    * pipe string.
    */
-	computerVision::computerVision(char *pipe) {
+	computerVision::computerVision(const char *pipe) {
 		this->pipe = pipe;
 
 		readPipe(pipe);
@@ -22,14 +23,14 @@ namespace cv {
 	/*
    * Updates the fields by accepting a new pipe name.
    */
-	void computerVision::update(char *pipe, prevPoint *prev) {
+	void computerVision::update(const char *pipe, prevPoint *prev) {
 
 		int tempHor = this->horizontalPixels;
 		int tempVer = this->verticalPixels;
 
 		readPipe(pipe);
 
-		if(this->horizontalPixels != -1 && this->verticalPixels != -1) {
+		if (this->horizontalPixels != -1 && this->verticalPixels != -1) {
 			prev->update(tempHor, tempVer);
 		}
 	
@@ -37,8 +38,8 @@ namespace cv {
 
 	// returns if the line is within vertical and horizontal bounds
 	bool computerVision::hasShoes() {
-		return((verticalPixels <= V_RANGE && verticalPixels >= 0) &&
-				(horizontalPixels <= H_RANGE && horizontalPixels >= 0);
+		return ((verticalPixels <= V_RANGE && verticalPixels >= 0) &&
+				(horizontalPixels <= H_RANGE && horizontalPixels >= 0));
 	}
 
 	// returns if the shoelace is centered. Revisit these values
@@ -67,7 +68,7 @@ namespace cv {
 		return (verticalPixels < V_CENTERTOP && verticalPixels != -1);
 	}
 
-	bool computerVIsion::inRange() {
+	bool computerVision::inRange() {
 		return (this->proxDistance <= INRANGE); 
 	}
 
@@ -95,17 +96,18 @@ namespace cv {
 		return this->proxDistance;
 	}
 
-	int computerVision::readString(char *pipeString, int index) {
-    	std::string s;
-    	while(pipestring[index] != "_") {
-    		s += pipeString[index];
-    		index++;
-    	}
+	int computerVision::readString(const char *pipeString, int index) {
+    std::string s;
+    std::string str("_");
+    while (str.compare(&pipeString[index]) != 0) {
+    	s += pipeString[index];
+    	index++;
+    }
 		
 		return std::stoi(s);		
 	}
 
-	void computerVision::readPipe(char *pipe) {
+	void computerVision::readPipe(const char *pipe) {
 
 		std::ifstream ifs;
 		ifs.open(pipe, std::ifstream::in);
@@ -183,56 +185,69 @@ namespace cv {
 	}
 
 
- /**
+  /**
    * ======================================================
    * CLASS: prevRC
    * ======================================================
    **/
 
-   /* General constructor for previous RC set to FC */
+  /* General constructor for previous RC set to FC */
 	prevRC::prevRC() {
 		prevRC(0,0,0,0,0,0,0,0);	
 	}
 
-    prevRC::prevRC(int roll, int pitch, int yaw, int throttle, int aux1, int aux2, int aux3, int aux4) {
-    	this->values = {roll, pitch, yaw, throttle, aux1, aux2, aux3, aux4}; 	
-    }
+  prevRC::prevRC(int roll, int pitch, int yaw, int throttle, int aux1, int aux2, int aux3, int aux4) {
+    this->values[0] = roll;
+    this->values[1] = pitch;
+    this->values[2] = yaw;
+    this->values[3] = throttle;
+    this->values[4] = aux1;
+    this->values[5] = aux2;
+    this->values[6] = aux3;
+    this->values[7] = aux4;
+  }
 
-    int prevRC::getRoll() {
-    	return this->values[0];
-    }
-    int prevRC::getPitch() {
-    	return this->values[1];
-    }
-    int prevRC::getYaw() {
-    	return this->values[2];
-    }
-    int prevRC::getThrottle() {
-    	return this->values[3];
-    }
-    int prevRC::getAux1() {
-    	return this->values[4];
-    }
-    int prevRC::getAux2() {
-    	return this->values[5];
-    }
-    int prevRC::getAux3() {
-    	return this->values[6];
-    }
-    int prevRC::getAux4() {
-    	return this->values[7];
-    }
+  int prevRC::getRoll() {
+  	return this->values[0];
+  }
 
-    /
-    void prevRC::update(int channels[], int values[]) {
-    	int valuesIndex;
-    	for(int i = 0; i < 8; i++) {
-    		if (channel[i] == 1) {
-    			this->values[i] = values[i];
-    			valuesIndex++;
-    		}
+  int prevRC::getPitch() {
+  	return this->values[1];
+  }
 
-    	}
+  int prevRC::getYaw() {
+  	return this->values[2];
+  }
 
-    }
+  int prevRC::getThrottle() {
+  	return this->values[3];
+  }
+
+  int prevRC::getAux1() {
+  	return this->values[4];
+  }
+
+  int prevRC::getAux2() {
+  	return this->values[5];
+  }
+
+  int prevRC::getAux3() {
+  	return this->values[6];
+  }
+
+  int prevRC::getAux4() {
+  	return this->values[7];
+  }
+
+  void prevRC::update(int channels[], int values[]) {
+  	int valuesIndex = 0;
+  	for (int i = 0; i < 8; i++) {
+  		if (channels[i] == 1) {
+  			this->values[i] = values[i];
+  			valuesIndex++;
+  		}
+
+  	}
+
+  }
 }

@@ -51,68 +51,75 @@ start:
     if (fcu.isArmed()) {
         std::cout << "armed after: "
                   << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count()
-                  << " ms"<<std::endl;
+                  << " ms" << std::endl;
     }
 
     std::this_thread::sleep_for(std::chrono::seconds(10));
 
 
-    /* initialize pipe, computerVision, prevPoint and prevRC*/ 
-    char *pipe = "test";
+    /* initialize pipe, computerVision, prevPoint and prevRC */ 
+    const char *pipe = "test";
     cv::computerVision cv(pipe);
-    cv::prevPoint prevPoint();
-    cv::prevRC prevRC();
+    cv::prevPoint prevPoint;
+    cv::prevRC prevRC;
 
+    int position[8] = {1, 1, 1, 1, 1, 1, 1, 1};
+    int rc_vals[8] = {1500, 1500, 1500, 1800, 1000, 1000, 1000, 1000};
     /* initially looking for shoes */
     while (!cv.hasShoes()) {
         /* increase throttle and go up */
-        fcu.setRc(1500, 1500, 1500, 1800, 1000, 1000, 1000, 1000);
-        prevRC.update(1500, 1500, 1500, 1800, 1000, 1000, 1000, 1000);
+        fcu.setRc(rc_vals[0], rc_vals[1], rc_vals[2], rc_vals[3],
+                  rc_vals[4], rc_vals[5], rc_vals[6], rc_vals[7]);
+        prevRC.update(position, rc_vals);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        cv.update(pipe, prevPoint);
+        cv.update(pipe, &prevPoint);
     }
     /* back off throttle and hover */
     fcu.setRc(prevRC.getRoll(), prevRC.getPitch(), prevRC.getYaw(),
               prevRC.getThrottle() - 100, prevRC.getAux1(), prevRC.getAux2(),
               prevRC.getAux3(), prevRC.getAux3());
 
-    prevRC.update((int[]){0,0,0,1,0,0,0,0}, (int[]){prevRC.getThrottle() - 100});
+    for (int i = 0; i < 8; i++) {
+        if (i != 3)
+          position[i] = 0;
+    }
+    int throttle_change[1] = {prevRC.getThrottle() - 100};
+    prevRC.update(position, throttle_change);
 
     /* main loop 
      * TODO:
      * - use condition rather than just true
      */
-
     shoeFound:
     while (cv.hasShoes() && !cv.isCentered()) {
         while (cv.isTooHigh()) {
             double difference = cv.getDistanceDifference(0);
 
             /* Increase throttle a bit using PID
-            *  Update the previous RC 
-            *  Udate the computer Vision and prevPoint
-            */
-            cv.update(pipe, prevPoint);
+             * Update the previous RC 
+             * Update the computer Vision and prevPoint
+             */
+            cv.update(pipe, &prevPoint);
         }
 
         while (cv.isTooLow()) {
             double difference = cv.getDistanceDifference(1);
 
             /* Decrease throttle a bit using PID
-            *  Update the previous RC 
-            *  Udate the computer Vision and prevPoint
-            */
-            cv.update(pipe, prevPoint);
+             * Update the previous RC 
+             * Update the computer Vision and prevPoint
+             */
+            cv.update(pipe, &prevPoint);
         }
 
         while (cv.isRight()) {
             double difference = cv.getDistanceDifference(2);
 
             /* Roll right a bit using PID
-            *  Update the previous RC 
-            *  Udate the computer Vision and prevPoint
-            */
-            cv.update(pipe, prevPoint);
+             * Update the previous RC 
+             * Update the computer Vision and prevPoint
+             */
+            cv.update(pipe, &prevPoint);
         }
 
         while (cv.isLeft()) {
@@ -122,7 +129,7 @@ start:
             *  Update the previous RC 
             *  Udate the computer Vision and prevPoint
             */
-            cv.update(pipe, prevPoint);
+            cv.update(pipe, &prevPoint);
         }
     }
 
@@ -143,13 +150,19 @@ start:
                 throttle = prevRC.getThrottle() + 100;
             }
 
-            fcu.setRC(roll, prevRC.getPitch(), prevRC.getYaw(), throttle,
+            fcu.setRc(roll, prevRC.getPitch(), prevRC.getYaw(), throttle,
                                       prevRC.getAux1(), prevRC.getAux2(),
                                       prevRC.getAux3(), prevRC.getAux4());
 
             /* update */
-            prevRc.update((int[]){1,0,0,1,0,0,0,0}, (int[]){roll, throttle});
-            cv.update(pipe, prevPoint);
+            for (int i = 0; i < 8; i++) {
+                if (i != 0 || i != 3)
+                  position[i] = 0;
+            }
+            int updateRollThrottle[2] = {roll, throttle};
+            prevRC.update(position, updateRollThrottle);
+
+            cv.update(pipe, &prevPoint);
             if (cv.hasShoes()) {
                 goto shoeFound;
             }
@@ -161,7 +174,7 @@ start:
     while (!cv.inRange()) {
         // move forward
 
-        cv.update(pipe, prevPoint);
+        cv.update(pipe, &prevPoint);
         if (!cv.isCentered()) {
             goto shoeFound;
         }
@@ -176,31 +189,31 @@ start:
         while (cv.isCloseCentered()) {
             /* move forward */
 
-            cv.update(pipe, prevPoint);
+            cv.update(pipe, &prevPoint);
                 while (cv.getIRFlag()) {
                     /* move forward very slowly */ 
                     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                    cv.update(pipe, prevPoint);
+                    cv.update(pipe, &prevPoint);
                     if (cv.hasCut()) {
-                        fcu.setRC(prevRC.getRoll(), prevRC.getPitch(), prevRC.getYaw(), prevRc.getThrottle() - 100,
+                        fcu.setRc(prevRC.getRoll(), prevRC.getPitch(), prevRC.getYaw(), prevRC.getThrottle() - 100,
                                           prevRC.getAux1(), prevRC.getAux2(),
                                           prevRC.getAux3(), prevRC.getAux4());
 
                         std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-                        fcu.setRC(prevRC.getRoll(), prevRC.getPitch(), prevRC.getYaw(), prevRc.getThrottle() - 200,
+                        fcu.setRc(prevRC.getRoll(), prevRC.getPitch(), prevRC.getYaw(), prevRC.getThrottle() - 200,
                                           prevRC.getAux1(), prevRC.getAux2(),
                                           prevRC.getAux3(), prevRC.getAux4());
 
                         std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-                        fcu.setRC(prevRC.getRoll(), prevRC.getPitch(), prevRC.getYaw(), prevRc.getThrottle() - 300,
+                        fcu.setRc(prevRC.getRoll(), prevRC.getPitch(), prevRC.getYaw(), prevRC.getThrottle() - 300,
                                           prevRC.getAux1(), prevRC.getAux2(),
                                           prevRC.getAux3(), prevRC.getAux4());
 
                         std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-                        fcu.setRC(1500, 1500, 1500, 1000,
+                        fcu.setRc(1500, 1500, 1500, 1000,
                                           prevRC.getAux1(), prevRC.getAux2(),
                                           prevRC.getAux3(), prevRC.getAux4());
 
@@ -220,19 +233,19 @@ start:
             *  Update the previous RC 
             *  Udate the computer Vision and prevPoint
             */
-            cv.update(pipe, prevPoint);
+            cv.update(pipe, &prevPoint);
 
 
         }
 
         while (cv.isLeft()) {
-                double difference = cv.getDistanceDifference(3);
-
-                /* Roll left a bit using PID
-                *  Update the previous RC 
-                *  Udate the computer Vision and prevPoint
-                */
-                cv.update(pipe, prevPoint);
+            double difference = cv.getDistanceDifference(3);
+            
+            /* Roll left a bit using PID
+             * Update the previous RC 
+             * Update the computer Vision and prevPoint
+             */
+            cv.update(pipe, &prevPoint);
         }
 
     }   

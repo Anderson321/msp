@@ -5,7 +5,7 @@
  *          the PID class/object.
  */
 
-#include "pid.h"
+#include <pid.hpp>
 
 /*
  * Constructs a PID controller given the initial Kp, Ki,
