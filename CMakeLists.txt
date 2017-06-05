@@ -102,6 +102,10 @@ target_link_libraries(cleanflight_read_test msp msp_msg_print)
 add_executable(myCode examples/myCode.cpp)
 target_link_libraries(myCode msp_fcu cv)
 
+#testFlight
+add_executable(testFlight examples/testFlight.cpp)
+target_link_libraries(testFlight msp_fcu cv)
+
 # installation
 if(catkin_FOUND)
     install(TARGETS msp msp_fcu msp_msg_print
