@@ -119,8 +119,10 @@ namespace cv {
 
 		this->verticalPixels = readString(pipeString, 4);
 
-		this->proxDistance = readString(pipeString, 8);
-		
+		int tempDistance = readString(pipeString, 8);
+		if (tempDistance <= this->proxDistance) {
+			this->proxDistance = tempDistance;
+		}
 		if(readString(pipeString, 12) == 1) {
 			this->irFlag = true;
 		} else {

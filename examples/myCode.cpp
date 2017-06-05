@@ -66,8 +66,8 @@ start:
     /* initially looking for shoes */
     while (!cv.hasShoes()) {
         /* increase throttle and go up */
-        fcu.setRc(1500, 1500, 1500, 1500, 1000, 1000, 1000, 1000);
-        prevRC.update(1500, 1500, 1500, 1500, 1000, 1000, 1000, 1000);
+        fcu.setRc(1500, 1500, 1500, 1800, 1000, 1000, 1000, 1000);
+        prevRC.update(1500, 1500, 1500, 1800, 1000, 1000, 1000, 1000);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         cv.update(pipe, prevPoint);
     }
