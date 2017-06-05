@@ -70,6 +70,10 @@ add_library(msp_fcu ${MSP_SOURCE_DIR}/FlightController.cpp
                            ${MSP_INCLUDE_DIR}/PeriodicTimer.hpp)
 target_link_libraries(msp_fcu msp)
 
+# computerVision API
+add_library(cv ${MSP_SOURCE_DIR}/computerVision.cpp
+			   ${MSP_INCLUDE_DIR}/computerVision.hpp)
+
 # pid library
 add_library(pid ${MSP_SOURCE_DIR}/pid.cpp
 			   ${MSP_INCLUDE_DIR}/pid.hpp)
@@ -96,7 +100,7 @@ target_link_libraries(cleanflight_read_test msp msp_msg_print)
 
 #myCode
 add_executable(myCode examples/myCode.cpp)
-target_link_libraries(myCode msp_fcu)
+target_link_libraries(myCode msp_fcu cv)
 
 # installation
 if(catkin_FOUND)
