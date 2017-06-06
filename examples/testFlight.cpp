@@ -8,10 +8,9 @@ using HighResClock = std::chrono::high_resolution_clock;
 using TimePoint = HighResClock::time_point;
 
 /* function declarations */
-void ramp_throttle(int seconds, int throttle, int increment);
-void hold_throttle(int seconds, int throttle);
+void ramp_throttle(fcu::FlightController *fcu, int seconds, int throttle, int increment);
+void hold_throttle(fcu::FlightController *fcu, int seconds, int throttle);
 
-namespace cv {
 
 int main(int argc, char *argv[]) {
     const std::string device = (argc>1) ? std::string(argv[1]) : "/dev/ttyUSB0";
@@ -87,7 +86,7 @@ start:
  * value, and value to increment throttle by,
  * ramps the throttle value by increment over the time period.
  */
-void ramp_throttle(FlightController *fcu, int seconds, int throttle, int increment) {
+void ramp_throttle(fcu::FlightController *fcu, int seconds, int throttle, int increment) {
     for (int i = 0; i < (seconds * 2); i++) {
         fcu.setRc(1500, 1500, 1500, (throttle + (i * increment)),
                   1500, 1500, 1500, 1500);
@@ -99,7 +98,7 @@ void ramp_throttle(FlightController *fcu, int seconds, int throttle, int increme
  * Given a number of second to run and start throttle values,
  * holds the throttle value.
  */
-void hold_throttle(FlightController *fcu, int seconds, int throttle) {
+void hold_throttle(fcu::FlightController *fcu, int seconds, int throttle) {
     ramp_throttle(fcu, seconds, throttle, 0);
 }
 

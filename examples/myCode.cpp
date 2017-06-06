@@ -7,12 +7,11 @@ using HighResClock = std::chrono::high_resolution_clock;
 using TimePoint = HighResClock::time_point;
 
 /* function declarations */
-bool failsafe(computerVision cv, prevRC prevRC, FlightController *fcu);
-void ramp_throttle(int seconds, int throttle, int increment, FlightController *fcu);
-void hold_throttle(int seconds, int throttle, FlightController *fcu);
-void finish(FlightController *fcu);
+bool failsafe(cv::computerVision cv, cv::prevRC prevRC, fcu::FlightController *fcu);
+void ramp_throttle(int seconds, int throttle, int increment, fcu::FlightController *fcu);
+void hold_throttle(int seconds, int throttle, fcu::FlightController *fcu);
+void finish(fcu::FlightController *fcu);
 
-namespace cv {
 
 int main(int argc, char *argv[]) {
     const std::string device = (argc>1) ? std::string(argv[1]) : "/dev/ttyUSB0";
@@ -300,7 +299,7 @@ start:
     }   
 }
 
-bool failsafe(computerVision cv, prevRC prevRC, FlightController *fcu) {
+bool failsafe(cv::computerVision cv, cv::prevRC prevRC, fcu::FlightController *fcu) {
     if(cv.getHeight() >= 250) {
         ramp_throttle(10, prevRC.getThrottle(), -25, fcu);
     }
@@ -311,7 +310,7 @@ bool failsafe(computerVision cv, prevRC prevRC, FlightController *fcu) {
  * value, and value to increment throttle by,
  * ramps the throttle value by increment over the time period.
  */
-void ramp_throttle(int seconds, int throttle, int increment, FlightController *fcu) {
+void ramp_throttle(int seconds, int throttle, int increment, fcu::FlightController *fcu) {
     for (int i = 0; i < (seconds * 2); i++) {
         fcu->setRc(1500, 1500, 1500, (throttle + (i * increment)),
                   1500, 1500, 1500, 1500);
@@ -323,12 +322,10 @@ void ramp_throttle(int seconds, int throttle, int increment, FlightController *f
  * Given a number of second to run and start throttle values,
  * holds the throttle value.
  */
-void hold_throttle(int seconds, int throttle, FlightController *fcu) {
+void hold_throttle(int seconds, int throttle, fcu::FlightController *fcu) {
     ramp_throttle(seconds, throttle, 0, fcu);
 }
 
-void finish(FlightController *fcu) {
+void finish(fcu::FlightController *fcu) {
     fcu.disarm_block();
 }
-
-}  /* end cv namespace */
