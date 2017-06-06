@@ -73,6 +73,7 @@ class computerVision {
     bool hasShoes();
     bool getIRFlag();
     int getProxDistance();
+    int getHeight();
     double getDistanceDifference(int code);
     bool hasCut();
 
@@ -84,6 +85,7 @@ class computerVision {
     bool isTooHigh();
     bool isTooLow();
     bool inRange();
+
 
     /* reading the pipe */
     int readString(const char *pipeString, int index);

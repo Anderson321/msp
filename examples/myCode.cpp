@@ -73,6 +73,9 @@ start:
         prevRC.update(position, rc_vals);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         cv.update(pipe, &prevPoint);
+        if(failsafe(cv, prevRC)) {
+            finish(fcu);
+        }
     }
     /* back off throttle and hover */
     fcu.setRc(prevRC.getRoll(), prevRC.getPitch(), prevRC.getYaw(),
@@ -100,6 +103,10 @@ start:
              * Update the computer Vision and prevPoint
              */
             cv.update(pipe, &prevPoint);
+
+            if(failsafe(cv, prevRC)) {
+                finish(fcu);
+            }
         }
 
         while (cv.isTooLow()) {
@@ -110,6 +117,9 @@ start:
              * Update the computer Vision and prevPoint
              */
             cv.update(pipe, &prevPoint);
+            if(failsafe(cv, prevRC)) {
+                finish(fcu);
+            }
         }
 
         while (cv.isRight()) {
@@ -120,6 +130,9 @@ start:
              * Update the computer Vision and prevPoint
              */
             cv.update(pipe, &prevPoint);
+            if(failsafe(cv, prevRC)) {
+                finish(fcu);
+            }
         }
 
         while (cv.isLeft()) {
@@ -130,6 +143,9 @@ start:
             *  Udate the computer Vision and prevPoint
             */
             cv.update(pipe, &prevPoint);
+            if(failsafe(cv, prevRC)) {
+                finish(fcu);
+            }
         }
     }
 
@@ -163,6 +179,9 @@ start:
             prevRC.update(position, updateRollThrottle);
 
             cv.update(pipe, &prevPoint);
+            if(failsafe(cv, prevRC)) {
+                finish(fcu);
+            }
             if (cv.hasShoes()) {
                 goto shoeFound;
             }
@@ -175,6 +194,9 @@ start:
         // move forward
 
         cv.update(pipe, &prevPoint);
+        if(failsafe(cv, prevRC)) {
+            finish(fcu);
+        }
         if (!cv.isCentered()) {
             goto shoeFound;
         }
@@ -190,10 +212,16 @@ start:
             /* move forward */
 
             cv.update(pipe, &prevPoint);
+            if(failsafe(cv, prevRC)) {
+                finish(fcu);
+            }
                 while (cv.getIRFlag()) {
                     /* move forward very slowly */ 
                     std::this_thread::sleep_for(std::chrono::milliseconds(100));
                     cv.update(pipe, &prevPoint);
+                    if(failsafe(cv, prevRC)) {
+                        finish(fcu);
+                    }
                     if (cv.hasCut()) {
                         fcu.setRc(prevRC.getRoll(), prevRC.getPitch(), prevRC.getYaw(), prevRC.getThrottle() - 100,
                                           prevRC.getAux1(), prevRC.getAux2(),
@@ -219,7 +247,7 @@ start:
 
                          std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-                         goto finish;
+                         finish(fcu);
                     }
               
             }
@@ -234,6 +262,9 @@ start:
             *  Udate the computer Vision and prevPoint
             */
             cv.update(pipe, &prevPoint);
+            if(failsafe(cv, prevRC)) {
+                finish(fcu);
+            }
 
 
         }
@@ -246,18 +277,48 @@ start:
              * Update the computer Vision and prevPoint
              */
             cv.update(pipe, &prevPoint);
+            if(failsafe(cv, prevRC)) {
+                finish(fcu);
+            }
         }
 
     }   
 
-finish: 
-    fcu.disarm_block();
+
+}
+
+bool failsafe(computerVision cv, prevRC prevRC) {
+    if(cv.getHeight() >= 250) {
+        ramp_throttle(10, prevRC.getThrottle(), -25);
+    }
 }
 
 
+/*
+ * Given a number of seconds to run, beginning throttle
+ * value, and value to increment throttle by,
+ * ramps the throttle value by increment over the time period.
+ */
+void ramp_throttle(int seconds, int throttle, int increment) {
+    for (int i = 0; i < (seconds * 2); i++) {
+        fcu.setRc(1500, 1500, 1500, (throttle + (i * increment)),
+                  1500, 1500, 1500, 1500);
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+}
 
-    
+/*
+ * Given a number of second to run and start throttle values,
+ * holds the throttle value.
+ */
+void hold_throttle(int seconds, int throttle) {
+    ramp_throttle(seconds, throttle, 0);
+}
 
+
+void finish(FlightController fcu) {
+    fcu.disarm_block();
+}
 
 
 

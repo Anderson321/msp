@@ -134,6 +134,10 @@ namespace cv {
 		return this->proxDistance;
 	}
 
+  int computerVision::getHeight() {
+    return this->height();
+  }
+
   /*
    * Given a string and index to begin reading from,
    * parses the string until it reaches the deliminating
