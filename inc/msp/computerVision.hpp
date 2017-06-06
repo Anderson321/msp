@@ -88,17 +88,22 @@ class computerVision {
 
 
     /* reading the pipe */
-    int readString(const char *pipeString, int index);
     void readPipe(const char *pipe);
 
   private:
+    int readString(const char *pipeString, int index);
+    void readcvPipe(char *str);
+    void readpyPipe(char *str);
+
     int horizontalPixels;
     int verticalPixels;
+    int height;
     bool irFlag;
     double proxDistance;
     double pixelFactor;
 
-    const char *pipe;
+    const char *cvPipe;
+    const char *pyPipe;
 };
 
 }
