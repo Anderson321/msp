@@ -3,8 +3,14 @@
 #include <iostream>
 #include <chrono>
 
+/* using declarations */
 using HighResClock = std::chrono::high_resolution_clock;
 using TimePoint = HighResClock::time_point;
+
+/* function declarations */
+void ramp_throttle(int seconds, int throttle, int increment);
+void hold_throttle(int seconds, int throttle);
+
 
 int main(int argc, char *argv[]) {
     const std::string device = (argc>1) ? std::string(argv[1]) : "/dev/ttyUSB0";
@@ -12,9 +18,8 @@ int main(int argc, char *argv[]) {
 
     TimePoint start, end;
     bool feature_changed = false;
-start:
 
-    /* Put in some sort of loop to make sure that it makes a connection? */
+start:
     fcu::FlightController fcu(device, baudrate);
 
     // wait until connection is established
@@ -26,7 +31,8 @@ start:
               << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count()
               << " ms" << std::endl;
 
-    // on cleanflight, we need to enable the "RX_MSP" feature
+    // on cleanflight, we need to enable the
+    // "RX_MSP" feature
     if (fcu.isFirmwareCleanflight()) {
         if (fcu.enableRxMSP() == 1) {
             std::cout << "RX_MSP enabled, restart" << std::endl;
@@ -35,7 +41,8 @@ start:
         }
 
         if (feature_changed) {
-            // if we rebooted after updating the RX_MSP feature, we need to sleep for a while
+            // if we rebooted after updating the RX_MSP
+            // feature, we need to sleep for a while
             std::this_thread::sleep_for(std::chrono::seconds(5));
         }
     }
@@ -55,27 +62,38 @@ start:
                   << " ms" << std::endl;
     }
 
-    // wait
+    /* wait */
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    int increment = 0;
-    for (int i = 0; i < 20; i++) {
-        fcu.setRc(1500, 1500, 1500, 1000, 1500, 1500, 1500, 1500);
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    }
+    hold_throttle(10, 1000);
 
-    // slowly increase
-    for (int i = 0; i < 10; i++) {
-        fcu.setRc(1500, 1500, 1500, 1500 + increment, 1500, 1500, 1500, 1500);
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        increment += 50;
-    }
+    // TEST 1
+    // /* slowly increase and then hold */
+    // ramp_throttle(5, 1500, 10);
+    // hold_throttle(1, 1600);
 
-    // slowly decrease
-    increment = 0;
-    for (int i = 0; i < 10; i++) {
-        fcu.setRc(1500, 1500, 1500, 1850 - increment, 1500, 1500, 1500, 1500);
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        increment += 50;
-    }
+    // /* slowly decrease */
+    // ramp_throttle(10, 1600, -5);
+    // hold_throttle(1, 1500);
     fcu.disarm_block();
-} 
+}
+
+/*
+ * Given a number of seconds to run, beginning throttle
+ * value, and value to increment throttle by,
+ * ramps the throttle value by increment over the time period.
+ */
+void ramp_throttle(int seconds, int throttle, int increment) {
+    for (int i = 0; i < (seconds * 2); i++) {
+        fcu.setRc(1500, 1500, 1500, (throttle + (i * increment)),
+                  1500, 1500, 1500, 1500);
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+}
+
+/*
+ * Given a number of second to run and start throttle values,
+ * holds the throttle value.
+ */
+void hold_throttle(int seconds, int throttle) {
+    ramp_throttle(seconds, throttle, 0);
+}
