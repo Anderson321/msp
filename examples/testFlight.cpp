@@ -65,10 +65,10 @@ start:
     /* wait */
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     // TEST 0
-    hold_throttle(10, 1000);
-    hold_throttle(1, 1500);
-    hold_throttle(1, 1300);
-    ramp_throttle(3, 1300, -50);
+    hold_throttle(&fcu, 10, 1000);
+    hold_throttle(&fcu, 1, 1500);
+    hold_throttle(&fcu, 1, 1300);
+    ramp_throttle(&fcu, 3, 1300, -50);
 
     // TEST 1
     // /* slowly increase and then hold */
@@ -88,7 +88,7 @@ start:
  */
 void ramp_throttle(fcu::FlightController *fcu, int seconds, int throttle, int increment) {
     for (int i = 0; i < (seconds * 2); i++) {
-        fcu.setRc(1500, 1500, 1500, (throttle + (i * increment)),
+        fcu->setRc(1500, 1500, 1500, (throttle + (i * increment)),
                   1500, 1500, 1500, 1500);
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
@@ -101,5 +101,3 @@ void ramp_throttle(fcu::FlightController *fcu, int seconds, int throttle, int in
 void hold_throttle(fcu::FlightController *fcu, int seconds, int throttle) {
     ramp_throttle(fcu, seconds, throttle, 0);
 }
-
-}  /* end cv namespace */

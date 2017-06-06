@@ -302,7 +302,10 @@ start:
 bool failsafe(cv::computerVision cv, cv::prevRC prevRC, fcu::FlightController *fcu) {
     if(cv.getHeight() >= 250) {
         ramp_throttle(10, prevRC.getThrottle(), -25, fcu);
+        return true;
     }
+
+    return false;
 }
 
 /*
@@ -327,5 +330,5 @@ void hold_throttle(int seconds, int throttle, fcu::FlightController *fcu) {
 }
 
 void finish(fcu::FlightController *fcu) {
-    fcu.disarm_block();
+    fcu->disarm_block();
 }
