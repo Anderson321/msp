@@ -64,22 +64,25 @@ start:
     cv::prevRC prevRC;
 
     int position[8] = {1, 1, 1, 1, 1, 1, 1, 1};
-    
+    int rc_vals[8] = {1500, 1500, 1500, 1000, 1500, 1500, 1500, 1500};
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    hold_throttle(10, 1000);
+    hold_throttle(10, 1000, &fcu);
 
-    ramp_throttle(5,)
+    ramp_throttle(5,1200, 50, &fcu);
+    rc_vals[3] = 1700;
+    prevRC.update(position, rc_vals);
+    cv.update(pipe, &prevPoint);
+    if(failsafe(cv, prevRC, &fcu)) {
+            finish(&fcu);
+        }
 
     /* initially looking for shoes */
     while (!cv.hasShoes()) {
         /* increase throttle and go up */
-        fcu.setRc(rc_vals[0], rc_vals[1], rc_vals[2], rc_vals[3],
-                  rc_vals[4], rc_vals[5], rc_vals[6], rc_vals[7]);
-        prevRC.update(position, rc_vals);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        hold_throttle(1, 1700, &fcu);
         cv.update(pipe, &prevPoint);
         if(failsafe(cv, prevRC, &fcu)) {
-            finish(fcu);
+            finish(&fcu);
         }
     }
     /* back off throttle and hover */
