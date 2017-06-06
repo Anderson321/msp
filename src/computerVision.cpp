@@ -160,29 +160,57 @@ namespace cv {
    * and saves it.
    */
 	void computerVision::readPipe(const char *pipe) {
+    std::string cvStr(this->cvPipe);
+    std::string pyStr(this->pyPipe);
+    std::string inStr(pipe);
 
-		std::ifstream ifs;
-		ifs.open(pipe, std::ifstream::in);
+    std::ifstream ifs;
+    if (inStr.compare(cvStr) == 0) {
+      char pipeString[9]; 
+      ifs.open(pipe, std::ifstream::in);
+      ifs.get(pipeString, 9);
+      readcvPipe(pipeString);
 
-		char pipeString[14]; 
-		ifs.get(pipeString, 14);
-		
+    } else if (inStr.compare(pyStr) == 0) {
+      char pipeString[11];
+      ifs.open(pipe, std::ifstream::in);
+      ifs.get(pipeString, 11);
+      readpyPipe(pipeString);
+    }
+	}
+
+  /*
+   * Given the string of data from the pipe,
+   * reads the horizontal/vertical pixels in.
+   */
+  void computerVision::readcvPipe(char *str) {
 		// Sets the fields by reading the pipe
-		this->horizontalPixels = readString(pipeString, 0);
-		this->verticalPixels = readString(pipeString, 4);
+		this->horizontalPixels = readString(str, 0);
+		this->verticalPixels = readString(str, 4);
+  }
 
-		int tempDistance = readString(pipeString, 8);
+  /*
+   * Given the string of data from the pipe,
+   * reads the height, proximity distance, and IR beam.
+   */
+  void computerVision::readpyPipe(char *str) {
+    this->height = readString(str, 0);
+
+		int tempDistance = readString(str, 4);
 		if (tempDistance <= this->proxDistance) {
 			this->proxDistance = tempDistance;
 		}
-		if(readString(pipeString, 12) == 1) {
+
+		if (readString(str, 8) == 1) {
 			this->irFlag = true;
 		} else {
 			this->irFlag = false;
 		}
+  }
 
-	}
-
+  /*
+   * Returns the current value saved for the irFlag.
+   */
 	bool computerVision::getIRFlag() {
 		return this->irFlag;
 	}
