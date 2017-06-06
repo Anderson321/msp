@@ -64,7 +64,12 @@ start:
     cv::prevRC prevRC;
 
     int position[8] = {1, 1, 1, 1, 1, 1, 1, 1};
-    int rc_vals[8] = {1500, 1500, 1500, 1800, 1000, 1000, 1000, 1000};
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    hold_throttle(10, 1000);
+
+    ramp_throttle(5,)
+
     /* initially looking for shoes */
     while (!cv.hasShoes()) {
         /* increase throttle and go up */
@@ -73,7 +78,7 @@ start:
         prevRC.update(position, rc_vals);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         cv.update(pipe, &prevPoint);
-        if(failsafe(cv, prevRC)) {
+        if(failsafe(cv, prevRC, &fcu)) {
             finish(fcu);
         }
     }
@@ -104,8 +109,8 @@ start:
              */
             cv.update(pipe, &prevPoint);
 
-            if(failsafe(cv, prevRC)) {
-                finish(fcu);
+            if(failsafe(cv, prevRC, &fcu)) {
+                finish(&fcu);
             }
         }
 
@@ -117,8 +122,8 @@ start:
              * Update the computer Vision and prevPoint
              */
             cv.update(pipe, &prevPoint);
-            if(failsafe(cv, prevRC)) {
-                finish(fcu);
+            if(failsafe(cv, prevRC, &fcu)) {
+                finish(&fcu);
             }
         }
 
@@ -130,8 +135,8 @@ start:
              * Update the computer Vision and prevPoint
              */
             cv.update(pipe, &prevPoint);
-            if(failsafe(cv, prevRC)) {
-                finish(fcu);
+            if(failsafe(cv, prevRC, &fcu)) {
+                finish(&fcu);
             }
         }
 
@@ -143,8 +148,8 @@ start:
             *  Udate the computer Vision and prevPoint
             */
             cv.update(pipe, &prevPoint);
-            if(failsafe(cv, prevRC)) {
-                finish(fcu);
+            if(failsafe(cv, prevRC, &fcu)) {
+                finish(&fcu);
             }
         }
     }
@@ -179,8 +184,8 @@ start:
             prevRC.update(position, updateRollThrottle);
 
             cv.update(pipe, &prevPoint);
-            if(failsafe(cv, prevRC)) {
-                finish(fcu);
+            if(failsafe(cv, prevRC, &fcu)) {
+                finish(&fcu);
             }
             if (cv.hasShoes()) {
                 goto shoeFound;
@@ -194,8 +199,8 @@ start:
         // move forward
 
         cv.update(pipe, &prevPoint);
-        if(failsafe(cv, prevRC)) {
-            finish(fcu);
+        if(failsafe(cv, prevRC, &fcu)) {
+            finish(&fcu);
         }
         if (!cv.isCentered()) {
             goto shoeFound;
@@ -212,15 +217,15 @@ start:
             /* move forward */
 
             cv.update(pipe, &prevPoint);
-            if(failsafe(cv, prevRC)) {
-                finish(fcu);
+            if(failsafe(cv, prevRC, &fcu)) {
+                finish(&fcu);
             }
                 while (cv.getIRFlag()) {
                     /* move forward very slowly */ 
                     std::this_thread::sleep_for(std::chrono::milliseconds(100));
                     cv.update(pipe, &prevPoint);
-                    if(failsafe(cv, prevRC)) {
-                        finish(fcu);
+                    if(failsafe(cv, prevRC, &fcu)) {
+                        finish(&fcu);
                     }
                     if (cv.hasCut()) {
                         fcu.setRc(prevRC.getRoll(), prevRC.getPitch(), prevRC.getYaw(), prevRC.getThrottle() - 100,
@@ -247,7 +252,7 @@ start:
 
                          std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-                         finish(fcu);
+                         finish(&fcu);
                     }
               
             }
@@ -262,8 +267,8 @@ start:
             *  Udate the computer Vision and prevPoint
             */
             cv.update(pipe, &prevPoint);
-            if(failsafe(cv, prevRC)) {
-                finish(fcu);
+            if(failsafe(cv, prevRC, &fcu)) {
+                finish(&fcu);
             }
 
 
@@ -277,8 +282,8 @@ start:
              * Update the computer Vision and prevPoint
              */
             cv.update(pipe, &prevPoint);
-            if(failsafe(cv, prevRC)) {
-                finish(fcu);
+            if(failsafe(cv, prevRC, &fcu)) {
+                finish(&fcu);
             }
         }
 
@@ -287,9 +292,9 @@ start:
 
 }
 
-bool failsafe(computerVision cv, prevRC prevRC) {
+bool failsafe(computerVision cv, prevRC prevRC, FlightController *fcu) {
     if(cv.getHeight() >= 250) {
-        ramp_throttle(10, prevRC.getThrottle(), -25);
+        ramp_throttle(10, prevRC.getThrottle(), -25, fcu);
     }
 }
 
@@ -299,9 +304,9 @@ bool failsafe(computerVision cv, prevRC prevRC) {
  * value, and value to increment throttle by,
  * ramps the throttle value by increment over the time period.
  */
-void ramp_throttle(int seconds, int throttle, int increment) {
+void ramp_throttle(int seconds, int throttle, int increment, FlightController *fcu) {
     for (int i = 0; i < (seconds * 2); i++) {
-        fcu.setRc(1500, 1500, 1500, (throttle + (i * increment)),
+        fcu->setRc(1500, 1500, 1500, (throttle + (i * increment)),
                   1500, 1500, 1500, 1500);
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
@@ -311,12 +316,12 @@ void ramp_throttle(int seconds, int throttle, int increment) {
  * Given a number of second to run and start throttle values,
  * holds the throttle value.
  */
-void hold_throttle(int seconds, int throttle) {
-    ramp_throttle(seconds, throttle, 0);
+void hold_throttle(int seconds, int throttle, FlightController *fcu) {
+    ramp_throttle(seconds, throttle, 0, fcu);
 }
 
 
-void finish(FlightController fcu) {
+void finish(FlightController *fcu) {
     fcu.disarm_block();
 }
 

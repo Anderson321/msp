@@ -135,7 +135,7 @@ namespace cv {
 	}
 
   int computerVision::getHeight() {
-    return this->height();
+    return this->height;
   }
 
   /*
