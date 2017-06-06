@@ -14,8 +14,8 @@ namespace cv {
    * pipe string.
    */
 	computerVision::computerVision(const char *pipe) {
-		this->pipe = pipe;
-		readPipe(pipe);
+		this->cvPipe = pipe;
+		readPipe(this->cvPipe);
 	}
 
 	/*
