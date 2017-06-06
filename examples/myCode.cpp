@@ -6,6 +6,14 @@
 using HighResClock = std::chrono::high_resolution_clock;
 using TimePoint = HighResClock::time_point;
 
+/* function declarations */
+bool failsafe(computerVision cv, prevRC prevRC, FlightController *fcu);
+void ramp_throttle(int seconds, int throttle, int increment, FlightController *fcu);
+void hold_throttle(int seconds, int throttle, FlightController *fcu);
+void finish(FlightController *fcu);
+
+namespace cv {
+
 int main(int argc, char *argv[]) {
     const std::string device = (argc>1) ? std::string(argv[1]) : "/dev/ttyUSB0";
     const uint baudrate = (argc>2) ? std::stoul(argv[2]) : 115200;
@@ -258,7 +266,7 @@ start:
                          finish(&fcu);
                     }
               
-            }
+              }
         }
 
 
@@ -289,10 +297,7 @@ start:
                 finish(&fcu);
             }
         }
-
     }   
-
-
 }
 
 bool failsafe(computerVision cv, prevRC prevRC, FlightController *fcu) {
@@ -300,7 +305,6 @@ bool failsafe(computerVision cv, prevRC prevRC, FlightController *fcu) {
         ramp_throttle(10, prevRC.getThrottle(), -25, fcu);
     }
 }
-
 
 /*
  * Given a number of seconds to run, beginning throttle
@@ -323,54 +327,8 @@ void hold_throttle(int seconds, int throttle, FlightController *fcu) {
     ramp_throttle(seconds, throttle, 0, fcu);
 }
 
-
 void finish(FlightController *fcu) {
     fcu.disarm_block();
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}  /* end cv namespace */
