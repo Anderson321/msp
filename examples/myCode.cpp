@@ -238,31 +238,9 @@ start:
                         finish(&fcu);
                     }
                     if (cv.hasCut()) {
-                        fcu.setRc(prevRC.getRoll(), prevRC.getPitch(), prevRC.getYaw(), prevRC.getThrottle() - 100,
-                                          prevRC.getAux1(), prevRC.getAux2(),
-                                          prevRC.getAux3(), prevRC.getAux4());
+                        ramp_throttle(5, prevRC.getThrottle(), -50, &fcu);
 
-                        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-                        fcu.setRc(prevRC.getRoll(), prevRC.getPitch(), prevRC.getYaw(), prevRC.getThrottle() - 200,
-                                          prevRC.getAux1(), prevRC.getAux2(),
-                                          prevRC.getAux3(), prevRC.getAux4());
-
-                        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-                        fcu.setRc(prevRC.getRoll(), prevRC.getPitch(), prevRC.getYaw(), prevRC.getThrottle() - 300,
-                                          prevRC.getAux1(), prevRC.getAux2(),
-                                          prevRC.getAux3(), prevRC.getAux4());
-
-                        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-                        fcu.setRc(1500, 1500, 1500, 1000,
-                                          prevRC.getAux1(), prevRC.getAux2(),
-                                          prevRC.getAux3(), prevRC.getAux4());
-
-                         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-                         finish(&fcu);
+                         finish(&fcu); 
                     }
               
               }
